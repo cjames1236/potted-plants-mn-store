@@ -6,10 +6,10 @@
   <title>Potted Kitchen — MN-Compliant Hemp Gummies</title>
   <meta name="description" content="Potted Kitchen — Minnesota-compliant hemp-derived Δ9 gummies. Third-party tested. MN shipping only." />
 
-  <!-- Tailwind CSS -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- PDF.js (only used if we need to render the COA as the hero image) -->
+  <!-- PDF.js (only if we need to render the COA as the hero image) -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -18,7 +18,7 @@
 
   <style>
     :root{
-      --brand-primary:#166534; --brand-primary-dark:#14532D; --brand-accent:#C87542;
+      --brand-primary:#166534; --brand-primary-dark:#14532D;
       --chip-bg:#ECFDF5; --chip-border:#A7F3D0; --chip-text:#065F46;
       --hero-from:#F2FBF5; --hero-to:#FFF7F0;
     }
@@ -27,16 +27,20 @@
     .btn-primary{background:var(--brand-primary);color:#fff}.btn-primary:hover{background:var(--brand-primary-dark)}
     .btn-ghost{border:1px solid #e5e7eb;background:#fff}.btn-ghost:hover{background:#f8fafc}
     .chip{font-size:.75rem;border:1px solid var(--chip-border);border-radius:9999px;padding:.2rem .5rem;background:var(--chip-bg);color:var(--chip-text)}
+    /* Upgraded product card visuals */
+    .card-hover{transition:box-shadow .18s ease, transform .18s ease}
+    .card-hover:hover{box-shadow:0 10px 28px rgba(0,0,0,.07)}
+    .badge{font-size:.72rem;line-height:1;padding:.36rem .6rem;border-radius:999px;background:#ffffffcc;border:1px solid #e5e7eb;color:#065F46;backdrop-filter:saturate(140%) blur(6px)}
   </style>
 </head>
 <body class="min-h-screen bg-neutral-50 text-neutral-900">
+
   <script>
     /* ---------- CONFIG ---------- */
     const BRAND = { name: "Potted Kitchen", tagline: "Minnesota-compliant hemp-derived gummies." };
 
-    // Your uploaded logo on GitHub (works regardless of spaces)
-    const LOGO_URL =
-      "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/snip%20clip%20of%20Potted%20Kitchen%20logo.png";
+    /* Your uploaded logo on GitHub (safe even with spaces in filename) */
+    const LOGO_URL = "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/snip%20clip%20of%20Potted%20Kitchen%20logo.png";
 
     const CASH_APP_URL = "https://cash.app/$CurtisGieseke";
 
@@ -44,10 +48,9 @@
       id: "mn-thc-gummies-10pk",
       name: "Hemp-Derived Δ9 Gummies",
       subtitle: "2.2 mg Δ9 per gummy • 10-pack (22 mg total)",
-      desc: "Compliant with Minnesota law (≤ 5 mg THC/serving and ≤ 50 mg/package). Third-party tested by Legend Technical Services (ISO/IEC 17025).",
+      desc: "Compliant with MN law (≤5 mg THC/serving and ≤50 mg/package). Third-party tested by Legend Technical Services (ISO/IEC 17025).",
       price: 24.99,
-      // placeholder only; replaced by hero logic below
-      image: "https://placehold.co/800x500/png?text=Hemp+%CE%949+Gummies+2.2mg+10pk",
+      image: "https://placehold.co/1000x700/png?text=Hemp+%CE%949+Gummies+2.2mg+10pk",
       strengthMg: 2.2, count: 10, batch: "2400824-01",
       coaUrl: "https://1drv.ms/b/c/dc5c1fb05bd2de17/ERfe0luwH1wggNytEAAAAAABBc6xNatFTT68cmIluAhg9A?e=HJCaQQ"
     };
@@ -58,7 +61,7 @@
     <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-2 font-semibold text-lg">
         <img id="logo" class="h-9 w-auto object-contain rounded-sm" alt="Potted Kitchen logo">
-        <span id="brand-name" style="color:var(--brand-primary)"></span>
+        <span id="brand-name" class="text-emerald-800"></span>
       </div>
       <a href="#cart" class="btn btn-ghost">🛒 Cart <span id="cart-count" class="ml-1 text-xs bg-emerald-600 text-white rounded-full px-1.5">0</span></a>
     </div>
@@ -68,7 +71,7 @@
   <header class="bg-gradient-to-br" style="background-image:linear-gradient(135deg,var(--hero-from),var(--hero-to))">
     <div class="mx-auto max-w-6xl px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
       <div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight" style="color:var(--brand-primary)">Hemp-Infused Gummies (MN-Compliant)</h1>
+        <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight text-emerald-800">Hemp-Infused Gummies (MN-Compliant)</h1>
         <p class="mt-3 text-neutral-700" id="tagline"></p>
         <div class="mt-6 flex flex-wrap gap-3 text-sm text-neutral-700">
           <span class="chip">≤ 5 mg/serv • ≤ 50 mg/pkg</span>
@@ -100,21 +103,35 @@
     </div>
   </section>
 
-  <!-- PRODUCT -->
+  <!-- PRODUCTS -->
   <section id="products" class="mx-auto max-w-6xl px-4 py-8">
     <h2 class="text-2xl font-bold mb-6">Shop</h2>
     <div class="grid sm:grid-cols-2 gap-6">
-      <article class="card p-5">
-        <img id="p-image" class="rounded-2xl mb-4" alt="">
-        <h3 id="p-name" class="font-semibold text-lg"></h3>
-        <p id="p-desc" class="text-sm text-neutral-600"></p>
+      <article class="card card-hover p-5">
+        <!-- Full-bleed image with gradient + badges -->
+        <figure class="relative rounded-2xl overflow-hidden bg-neutral-100">
+          <img id="p-image" alt="" class="w-full h-full object-cover aspect-[4/3]" />
+          <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-black/0"></div>
+          <div class="absolute left-3 bottom-3 flex gap-2">
+            <span class="badge">COA Verified</span>
+            <span class="badge"><span id="p-strength"></span> mg Δ9</span>
+          </div>
+          <button id="open-coa-card" class="absolute right-3 top-3 btn btn-ghost bg-white/85 backdrop-blur text-sm">View COA</button>
+        </figure>
+
+        <h3 class="font-semibold text-lg mt-4" id="p-name"></h3>
+        <p class="text-sm text-neutral-600" id="p-desc"></p>
         <p class="mt-2 text-sm"><strong id="p-serve"></strong></p>
         <p class="text-sm">Batch #: <span id="p-batch"></span></p>
-        <p class="font-semibold mt-2" id="p-price"></p>
-        <div class="mt-4 flex flex-wrap gap-2 items-center">
-          <a id="pay-cashapp" class="btn btn-ghost" target="_blank" rel="noreferrer" style="border-color:var(--brand-primary);color:var(--brand-primary)">Pay with Cash App</a>
-          <button id="add" class="btn btn-primary">Add to Cart</button>
-          <button id="open-coa" class="btn btn-ghost">View COA</button>
+
+        <div class="mt-4 flex flex-col sm:flex-row sm:items-center gap-2">
+          <div class="text-xl font-bold sm:mr-auto" id="p-price"></div>
+          <button id="add" class="btn btn-primary w-full sm:w-auto">Add to Cart</button>
+          <a id="pay-cashapp" target="_blank" rel="noreferrer"
+             class="btn btn-ghost w-full sm:w-auto"
+             style="border-color:var(--brand-primary);color:var(--brand-primary)">Pay with Cash App</a>
+        </div>
+        <div class="mt-2">
           <span id="mn-note" class="text-xs text-amber-700 hidden">Select Minnesota to enable checkout.</span>
         </div>
       </article>
@@ -214,35 +231,38 @@
   </div>
 
   <script>
-    /* ---------- INIT TEXT/LOGO ---------- */
-    const $ = s => document.querySelector(s);
+    const $ = sel => document.querySelector(sel);
     const fmt = n => n.toLocaleString("en-US",{style:"currency",currency:"USD"});
+
+    /* Init content */
     $('#logo').src = LOGO_URL;
     $('#brand-name').textContent = BRAND.name;
     $('#tagline').textContent = BRAND.tagline;
     $('#year').textContent = new Date().getFullYear();
-    $('#p-image').src = PRODUCT.image;
-    $('#p-image').alt = PRODUCT.name;
     $('#p-name').textContent = PRODUCT.name;
     $('#p-desc').textContent = PRODUCT.desc;
     $('#p-serve').textContent = `${PRODUCT.strengthMg} mg Δ9-THC per gummy × ${PRODUCT.count} gummies = ${PRODUCT.strengthMg * PRODUCT.count} mg total`;
     $('#p-batch').textContent = PRODUCT.batch;
     $('#p-price').textContent = fmt(PRODUCT.price);
-    $('#pay-cashapp').href = CASH_APP_URL;
+    $('#p-strength').textContent = PRODUCT.strengthMg;
+    $('#pay-cashapp').href = "https://cash.app/$CurtisGieseke";
     $('#coa-batch').textContent = PRODUCT.batch;
     $('#coa-link').href = PRODUCT.coaUrl;
+    $('#open-coa-card').onclick = () => toggleCOA(true);
+    $('#open-coa-hero').onclick = () => toggleCOA(true);
 
-    /* ---------- STATE SELECT (MN ONLY) ---------- */
+    /* State select (MN only) */
     const states=[["","Select state…"],["MN","Minnesota"],["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"],["DC","District of Columbia"]];
     const sel=$('#state'); states.forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o);});
-    let selectedState=""; sel.addEventListener('change',()=>{
+    let selectedState="";
+    sel.addEventListener('change',()=>{
       selectedState=sel.value; const msg=$('#state-msg');
       if(!selectedState){msg.textContent="";$('#mn-note').classList.add('hidden');return;}
       if(selectedState!=="MN"){msg.textContent="⚠️ We currently ship only within Minnesota.";msg.className="text-amber-700 text-sm";$('#mn-note').classList.remove('hidden');}
       else{msg.textContent="✔ Minnesota shipping available.";msg.className="text-green-700 text-sm";$('#mn-note').classList.add('hidden');}
     });
 
-    /* ---------- CART ---------- */
+    /* Cart (simple) */
     const cart=[]; function openCart(){ $('#drawer').style.transform='translateX(0)'; }
     function closeCart(){ $('#drawer').style.transform='translateX(100%)'; }
     function renderCart(){
@@ -253,7 +273,7 @@
         const row=document.createElement('div');
         row.className='card p-3 flex gap-3';
         row.innerHTML=`
-          <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${$('#hero-img').style.backgroundImage.replace(/^url\\(["']?|["']?\\)$/g,"") || PRODUCT.image}');background-size:cover;background-position:center"></div>
+          <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${$('#p-image').src}');background-size:cover;background-position:center"></div>
           <div class="flex-1">
             <p class="font-medium">${PRODUCT.name}</p>
             <p class="text-xs text-neutral-600">${PRODUCT.subtitle || ""}</p>
@@ -277,54 +297,52 @@
     document.querySelector('a[href="#cart"]').addEventListener('click',(e)=>{ e.preventDefault(); openCart(); });
     $('#add').addEventListener('click', ()=>{ const f=cart.find(i=>i.id===PRODUCT.id); if(f) f.qty+=1; else cart.push({id:PRODUCT.id,qty:1}); renderCart(); openCart(); });
 
-    /* ---------- CHECKOUT (Cash App) ---------- */
+    /* Checkout (Cash App) */
     $('#checkout').addEventListener('click', ()=>{
       if(!cart.length) return;
       if(selectedState!=="MN"){ alert("We ship within Minnesota only. Select MN to proceed."); return; }
       const total = cart.reduce((s,i)=>s + PRODUCT.price * i.qty, 0).toFixed(2);
       const orderId = "PK-" + Math.random().toString(36).slice(2,8).toUpperCase();
-      const note = `Order ${orderId} — ${PRODUCT.name} x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Total ${fmt(Number(total))} — Ship: MN`;
+      const note = `Order ${orderId} — ${PRODUCT.name} x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Total $${total} — Ship: MN`;
       navigator.clipboard?.writeText(note).catch(()=>{});
       alert(`Copy this into your Cash App note before paying:\n\n${note}\n\nThen complete payment on Cash App.`);
-      window.open(CASH_APP_URL,"_blank");
+      window.open("https://cash.app/$CurtisGieseke","_blank");
     });
 
-    /* ---------- COA MODAL ---------- */
+    /* COA modal + Age gate */
     function toggleCOA(show=true){ const c=$('#coa'); c.style.display=show?'flex':'none'; }
-    $('#open-coa').onclick=()=>toggleCOA(true);
-    $('#open-coa-hero').onclick=()=>toggleCOA(true);
-
-    /* ---------- AGE GATE ---------- */
     function showAgeGate(){ const g=$('#age'); g.style.display='flex'; }
     function verifyAge(){ localStorage.setItem('hemp_age_verified','true'); const g=$('#age'); g.style.display='none'; }
     window.verifyAge=verifyAge; window.closeCart=closeCart; window.toggleCOA=toggleCOA;
     if(localStorage.getItem('hemp_age_verified')!=='true') showAgeGate();
 
-    /* ---------- HERO IMAGE PIPELINE ----------
-       Tries these in order:
-       1) Local snapshot you upload: /assets/gummies-hero.(jpg|png)
-       2) Raw GitHub image (same filenames in /assets/)
-       3) Local COA PDF (/assets/legend-coa.pdf) rendered via PDF.js
-       4) OneDrive COA (may be blocked by CORS)
-       5) Placeholder
-    ------------------------------------------ */
-    (async function setHeroImage(){
+    /* HERO/PRODUCT IMAGE PIPELINE — tries in order:
+       1) /assets/gummies-hero.jpg or .png (upload recommended)
+       2) GitHub raw /assets/gummies-hero.jpg or .png
+       3) /assets/legend-coa.pdf then OneDrive COA (PDF.js render)
+       4) Placeholder
+    */
+    (async function setHeroAndCardImage(){
       const hero = $('#hero-img');
-      function setBG(url){ hero.style.backgroundImage=`url('${url}')`; hero.style.backgroundSize='cover'; hero.style.backgroundPosition='center'; }
+      const cardImg = $('#p-image');
+      function setBG(url){
+        hero.style.backgroundImage = `url('${url}')`;
+        hero.style.backgroundSize = 'cover';
+        hero.style.backgroundPosition = 'center';
+        cardImg.src = url; cardImg.alt = PRODUCT.name;
+      }
+      async function tryImg(url){
+        return await new Promise(res=>{
+          const i=new Image(); i.onload=()=>res(true); i.onerror=()=>res(false); i.src=url+"?v="+Date.now();
+        });
+      }
       const candidates = [
         "/assets/gummies-hero.jpg",
         "/assets/gummies-hero.png",
         "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/gummies-hero.jpg",
         "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/gummies-hero.png",
       ];
-      for (const url of candidates){
-        /* try image */
-        /* eslint-disable no-await-in-loop */
-        const ok = await new Promise(res=>{
-          const i=new Image(); i.onload=()=>res(true); i.onerror=()=>res(false); i.src=url+"?v="+Date.now();
-        });
-        if (ok){ setBG(url+"?v="+Date.now()); return; }
-      }
+      for (const c of candidates){ if (await tryImg(c)) { setBG(c); return; } }
       async function renderPdf(url){
         try{
           const pdf = await pdfjsLib.getDocument({ url }).promise;
@@ -334,13 +352,12 @@
           const ctx = canvas.getContext('2d');
           canvas.width = viewport.width; canvas.height = viewport.height;
           await page.render({ canvasContext: ctx, viewport }).promise;
-          setBG(canvas.toDataURL('image/png'));
-          return true;
+          setBG(canvas.toDataURL('image/png')); return true;
         }catch{ return false; }
       }
       if (await renderPdf("/assets/legend-coa.pdf")) return;
       if (await renderPdf(PRODUCT.coaUrl)) return;
-      setBG(PRODUCT.image); // final fallback
+      setBG(PRODUCT.image);
     })();
   </script>
 </body>
