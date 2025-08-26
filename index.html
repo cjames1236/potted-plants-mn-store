@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Potted Plants — MN-Compliant Hemp Gummies</title>
+  <title>Potted Kitchen — MN-Compliant Hemp Gummies</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <meta name="description" content="Potted Plants — Minnesota-compliant hemp-derived Δ9 gummies. Third-party tested. MN shipping only." />
+  <meta name="description" content="Potted Kitchen — Minnesota-compliant hemp-derived Δ9 gummies. Third-party tested. MN shipping only." />
   <style>
     :root{
       /* BRAND COLORS (evergreen + terracotta) */
@@ -27,10 +27,10 @@
 <body class="min-h-screen bg-neutral-50 text-neutral-900">
   <script>
     // ----- CONFIG (logo + product + links) -----
-    const BRAND = { name: "Potted Plants", tagline: "Minnesota-compliant hemp-derived gummies." };
+    const BRAND = { name: "Potted Kitchen", tagline: "Minnesota-compliant hemp-derived gummies." };
 
-    // ✅ Use the local logo you upload to /assets (no hotlinking)
-    const LOGO_URL = "/assets/potted-plants-logo.png";
+    // ✅ Point to the file you uploaded at the repo root (spaces are URL-encoded)
+    const LOGO_URL = "/snip%20clip%20of%20Potted%20Kitchen%20logo.png";
 
     const CASH_APP_URL = "https://cash.app/$CurtisGieseke";
     const PRODUCT = {
@@ -51,7 +51,7 @@
   <nav class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b">
     <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-2 font-semibold text-lg">
-        <img id="logo" class="h-9 w-auto object-contain rounded-sm" alt="Potted Plants logo">
+        <img id="logo" class="h-9 w-auto object-contain rounded-sm" alt="Potted Kitchen logo">
         <span style="color:var(--brand-primary)" id="brand-name"></span>
       </div>
       <a href="#cart" class="btn btn-ghost">🛒 Cart <span id="cart-count" class="ml-1 text-xs bg-emerald-600 text-white rounded-full px-1.5">0</span></a>
@@ -140,8 +140,8 @@
   <footer class="border-t bg-white">
     <div class="mx-auto max-w-6xl px-4 py-10 grid md:grid-cols-4 gap-6 text-sm">
       <div>
-        <div class="font-semibold flex items-center gap-2">🌿 Potted Plants</div>
-        <p class="mt-2 text-neutral-600">© <span id="year"></span> Potted Plants. All rights reserved.</p>
+        <div class="font-semibold flex items-center gap-2">🍳 Potted Kitchen</div>
+        <p class="mt-2 text-neutral-600">© <span id="year"></span> Potted Kitchen. All rights reserved.</p>
       </div>
       <div>
         <p class="font-semibold">Company</p>
@@ -295,7 +295,7 @@
       if (!cart.length) return;
       if (selectedState !== "MN") { alert("We ship within Minnesota only. Select MN to proceed."); return; }
       const total = cart.reduce((s,i)=>s + PRODUCT.price * i.qty, 0).toFixed(2);
-      const orderId = "PP-" + Math.random().toString(36).slice(2,8).toUpperCase();
+      const orderId = "PK-" + Math.random().toString(36).slice(2,8).toUpperCase();
       const note = `Order ${orderId} — ${PRODUCT.name} x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Total ${fmt(Number(total))} — Ship: MN`;
       navigator.clipboard?.writeText(note).catch(()=>{});
       alert(`Copy this into your Cash App note before paying:\n\n${note}\n\nThen complete payment on Cash App.`);
