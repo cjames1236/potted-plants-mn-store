@@ -8,29 +8,25 @@
   <meta name="description" content="Potted Kitchen — Minnesota-compliant hemp-derived Δ9 gummies. Third-party tested. MN shipping only." />
   <style>
     :root{
-      /* BRAND COLORS (evergreen + terracotta) */
-      --brand-primary:#166534;
-      --brand-primary-dark:#14532D;
-      --brand-accent:#C87542;
-
+      --brand-primary:#166534; --brand-primary-dark:#14532D; --brand-accent:#C87542;
       --chip-bg:#ECFDF5; --chip-border:#A7F3D0; --chip-text:#065F46;
       --hero-from:#F2FBF5; --hero-to:#FFF7F0;
     }
-    .fade-in { animation: fade .25s ease-in; } @keyframes fade { from{opacity:0} to{opacity:1} }
-    .card { border-radius: 1.25rem; border: 1px solid #e5e7eb; background: #fff; }
-    .btn { border-radius: 1rem; padding:.6rem 1rem; font-size:.9rem; }
-    .btn-primary { background:var(--brand-primary); color:#fff; } .btn-primary:hover{ background:var(--brand-primary-dark); }
-    .btn-ghost { border:1px solid #e5e7eb; background:#fff; } .btn-ghost:hover{ background:#f8fafc; }
-    .chip { font-size:.75rem; border:1px solid var(--chip-border); border-radius:9999px; padding:.2rem .5rem; background:var(--chip-bg); color:var(--chip-text)}
+    .fade-in{animation:fade .25s ease-in}@keyframes fade{from{opacity:0}to{opacity:1}}
+    .card{border-radius:1.25rem;border:1px solid #e5e7eb;background:#fff}
+    .btn{border-radius:1rem;padding:.6rem 1rem;font-size:.9rem}
+    .btn-primary{background:var(--brand-primary);color:#fff}.btn-primary:hover{background:var(--brand-primary-dark)}
+    .btn-ghost{border:1px solid #e5e7eb;background:#fff}.btn-ghost:hover{background:#f8fafc}
+    .chip{font-size:.75rem;border:1px solid var(--chip-border);border-radius:9999px;padding:.2rem .5rem;background:var(--chip-bg);color:var(--chip-text)}
   </style>
 </head>
 <body class="min-h-screen bg-neutral-50 text-neutral-900">
   <script>
-    // ----- CONFIG (logo + product + links) -----
+    // ----- CONFIG (brand + logo + product + links) -----
     const BRAND = { name: "Potted Kitchen", tagline: "Minnesota-compliant hemp-derived gummies." };
 
-    // ✅ Point to the file you uploaded at the repo root (spaces are URL-encoded)
-    const LOGO_URL = "/snip%20clip%20of%20Potted%20Kitchen%20logo.png";
+    // Use the RAW GitHub URL to your uploaded PNG so it always resolves
+    const LOGO_URL = "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/snip%20clip%20of%20Potted%20Kitchen%20logo.png";
 
     const CASH_APP_URL = "https://cash.app/$CurtisGieseke";
     const PRODUCT = {
@@ -208,11 +204,10 @@
   </div>
 
   <script>
-    // --- helpers ---
     const $ = sel => document.querySelector(sel);
-    const fmt = n => n.toLocaleString("en-US", {style:"currency", currency:"USD"});
+    const fmt = n => n.toLocaleString("en-US",{style:"currency",currency:"USD"});
 
-    // --- init content ---
+    // init content
     $('#logo').src = LOGO_URL;
     $('#brand-name').textContent = BRAND.name;
     $('#tagline').textContent = BRAND.tagline;
@@ -228,38 +223,30 @@
     $('#pay-cashapp').href = CASH_APP_URL;
 
     // state select (MN only)
-    const states = [["","Select state…"],["MN","Minnesota"],["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"],["DC","District of Columbia"]];
-    const sel = $('#state'); states.forEach(([v,t])=>{ const o=document.createElement('option'); o.value=v; o.textContent=t; sel.appendChild(o); });
+    const states=[["","Select state…"],["MN","Minnesota"],["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"],["DC","District of Columbia"]];
+    const sel=$('#state'); states.forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o);});
 
-    let selectedState = "";
-    sel.addEventListener('change', () => {
-      selectedState = sel.value;
-      const msg = $('#state-msg');
-      if (!selectedState) { msg.textContent = ""; $('#mn-note').classList.add('hidden'); return; }
-      if (selectedState !== "MN") {
-        msg.textContent = "⚠️ We currently ship only within Minnesota.";
-        msg.className = "text-amber-700 text-sm";
-        $('#mn-note').classList.remove('hidden');
-      } else {
-        msg.textContent = "✔ Minnesota shipping available.";
-        msg.className = "text-green-700 text-sm";
-        $('#mn-note').classList.add('hidden');
-      }
+    let selectedState="";
+    sel.addEventListener('change',()=>{
+      selectedState=sel.value;
+      const msg=$('#state-msg');
+      if(!selectedState){msg.textContent="";$('#mn-note').classList.add('hidden');return;}
+      if(selectedState!=="MN"){msg.textContent="⚠️ We currently ship only within Minnesota.";msg.className="text-amber-700 text-sm";$('#mn-note').classList.remove('hidden');}
+      else{msg.textContent="✔ Minnesota shipping available.";msg.className="text-green-700 text-sm";$('#mn-note').classList.add('hidden');}
     });
 
-    // --- cart ---
-    const cart = []; // [{id, qty}]
+    // cart
+    const cart=[];
     function openCart(){ $('#drawer').style.transform='translateX(0)'; }
     function closeCart(){ $('#drawer').style.transform='translateX(100%)'; }
     function renderCart(){
       $('#cart-count').textContent = cart.reduce((s,i)=>s+i.qty,0);
-      const wrap = $('#cart-items'); wrap.innerHTML = '';
-      let total = 0;
+      const wrap=$('#cart-items'); wrap.innerHTML=''; let total=0;
       cart.forEach(item=>{
-        total += PRODUCT.price * item.qty;
-        const row = document.createElement('div');
+        total+=PRODUCT.price*item.qty;
+        const row=document.createElement('div');
         row.className='card p-3 flex gap-3';
-        row.innerHTML = `
+        row.innerHTML=`
           <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${PRODUCT.image}');background-size:cover;background-position:center"></div>
           <div class="flex-1">
             <p class="font-medium">${PRODUCT.name}</p>
@@ -283,41 +270,37 @@
     }
 
     $('#add').addEventListener('click', ()=>{
-      const found = cart.find(i=>i.id===PRODUCT.id);
-      if (found) found.qty += 1; else cart.push({id:PRODUCT.id, qty:1});
+      const found=cart.find(i=>i.id===PRODUCT.id);
+      if(found) found.qty+=1; else cart.push({id:PRODUCT.id, qty:1});
       renderCart(); openCart();
     });
-
-    document.querySelector('a[href="#cart"]').addEventListener('click', (e)=>{ e.preventDefault(); openCart(); });
+    document.querySelector('a[href="#cart"]').addEventListener('click',(e)=>{ e.preventDefault(); openCart(); });
 
     // checkout -> Cash App with order note copied
     $('#checkout').addEventListener('click', ()=>{
-      if (!cart.length) return;
-      if (selectedState !== "MN") { alert("We ship within Minnesota only. Select MN to proceed."); return; }
+      if(!cart.length) return;
+      if(selectedState!=="MN"){ alert("We ship within Minnesota only. Select MN to proceed."); return; }
       const total = cart.reduce((s,i)=>s + PRODUCT.price * i.qty, 0).toFixed(2);
       const orderId = "PK-" + Math.random().toString(36).slice(2,8).toUpperCase();
       const note = `Order ${orderId} — ${PRODUCT.name} x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Total ${fmt(Number(total))} — Ship: MN`;
       navigator.clipboard?.writeText(note).catch(()=>{});
       alert(`Copy this into your Cash App note before paying:\n\n${note}\n\nThen complete payment on Cash App.`);
-      window.open(CASH_APP_URL, "_blank");
+      window.open("https://cash.app/$CurtisGieseke","_blank");
     });
 
     // COA modal + hero
-    function toggleCOA(show=true){
-      const c = $('#coa'); c.style.display = show ? 'flex' : 'none';
-    }
-    $('#open-coa').onclick = ()=> toggleCOA(true);
-    $('#open-coa-hero').onclick = ()=> toggleCOA(true);
-    $('#coa-batch').textContent = PRODUCT.batch;
-    $('#coa-link').href = PRODUCT.coaUrl;
+    function toggleCOA(show=true){ const c=$('#coa'); c.style.display=show?'flex':'none'; }
+    $('#open-coa').onclick=()=>toggleCOA(true);
+    $('#open-coa-hero').onclick=()=>toggleCOA(true);
+    $('#coa-batch').textContent=PRODUCT.batch;
+    $('#coa-link').href=PRODUCT.coaUrl;
 
     // Age gate
     function showAgeGate(){ const g=$('#age'); g.style.display='flex'; }
-    function hideAgeGate(){ const g=$('#age'); g.style.display='none'; }
-    function verifyAge(){ localStorage.setItem('hemp_age_verified','true'); hideAgeGate(); }
-    window.verifyAge = verifyAge; window.closeCart=closeCart; window.toggleCOA=toggleCOA;
+    function verifyAge(){ localStorage.setItem('hemp_age_verified','true'); const g=$('#age'); g.style.display='none'; }
+    window.verifyAge=verifyAge; window.closeCart=closeCart; window.toggleCOA=toggleCOA;
 
-    if (localStorage.getItem('hemp_age_verified')!=='true') showAgeGate();
+    if(localStorage.getItem('hemp_age_verified')!=='true') showAgeGate();
   </script>
 </body>
 </html>
