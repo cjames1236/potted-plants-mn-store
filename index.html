@@ -6,15 +6,18 @@
   <title>Potted Kitchen — MN-Compliant Hemp Gummies</title>
   <meta name="description" content="Potted Kitchen — Minnesota-compliant hemp-derived Δ9 gummies. Third-party tested. MN shipping only." />
 
-  <!-- Tailwind -->
+  <!-- Tailwind (utility CSS) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- PDF.js (only if we need to render the COA as the hero image) -->
+  <!-- PDF.js (only used if we need to render the COA into the hero image) -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
   </script>
+
+  <!-- QR code generator (for the COA QR) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
   <style>
     :root{
@@ -27,9 +30,6 @@
     .btn-primary{background:var(--brand-primary);color:#fff}.btn-primary:hover{background:var(--brand-primary-dark)}
     .btn-ghost{border:1px solid #e5e7eb;background:#fff}.btn-ghost:hover{background:#f8fafc}
     .chip{font-size:.75rem;border:1px solid var(--chip-border);border-radius:9999px;padding:.2rem .5rem;background:var(--chip-bg);color:var(--chip-text)}
-    /* Upgraded product card visuals */
-    .card-hover{transition:box-shadow .18s ease, transform .18s ease}
-    .card-hover:hover{box-shadow:0 10px 28px rgba(0,0,0,.07)}
     .badge{font-size:.72rem;line-height:1;padding:.36rem .6rem;border-radius:999px;background:#ffffffcc;border:1px solid #e5e7eb;color:#065F46;backdrop-filter:saturate(140%) blur(6px)}
   </style>
 </head>
@@ -39,21 +39,29 @@
     /* ---------- CONFIG ---------- */
     const BRAND = { name: "Potted Kitchen", tagline: "Minnesota-compliant hemp-derived gummies." };
 
-    /* Your uploaded logo on GitHub (safe even with spaces in filename) */
-    const LOGO_URL = "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/snip%20clip%20of%20Potted%20Kitchen%20logo.png";
+    /* Your uploaded logo (works fine as a raw link) */
+    const LOGO_URL =
+      "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/snip%20clip%20of%20Potted%20Kitchen%20logo.png";
 
+    /* Payment */
     const CASH_APP_URL = "https://cash.app/$CurtisGieseke";
+    const STRIPE_LINK = ""; // optional Stripe payment link (leave "" to hide button)
 
+    /* Product info */
     const PRODUCT = {
       id: "mn-thc-gummies-10pk",
       name: "Hemp-Derived Δ9 Gummies",
-      subtitle: "2.2 mg Δ9 per gummy • 10-pack (22 mg total)",
-      desc: "Compliant with MN law (≤5 mg THC/serving and ≤50 mg/package). Third-party tested by Legend Technical Services (ISO/IEC 17025).",
+      desc: "Each gummy contains 2.2mg Δ9-THC. 10 gummies per pack (22mg total). Compliant with Minnesota law (≤ 5mg per serving, ≤ 50mg per package). Third-party tested by Legend Technical Services (ISO/IEC 17025).",
       price: 24.99,
-      image: "https://placehold.co/1000x700/png?text=Hemp+%CE%949+Gummies+2.2mg+10pk",
-      strengthMg: 2.2, count: 10, batch: "2400824-01",
+      strengthMg: 2.2,
+      count: 10,
+      batch: "2400824-01",
+      imageFallback: "https://placehold.co/1000x700/png?text=Hemp+%CE%949+Gummies+2.2mg+10pk",
       coaUrl: "https://1drv.ms/b/c/dc5c1fb05bd2de17/ERfe0luwH1wggNytEAAAAAABBc6xNatFTT68cmIluAhg9A?e=HJCaQQ"
     };
+
+    /* Expose current hero image for cart thumbs */
+    window.currentHeroURL = PRODUCT.imageFallback;
   </script>
 
   <!-- NAV -->
@@ -61,7 +69,7 @@
     <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-2 font-semibold text-lg">
         <img id="logo" class="h-9 w-auto object-contain rounded-sm" alt="Potted Kitchen logo">
-        <span id="brand-name" class="text-emerald-800"></span>
+        <span class="text-emerald-800" id="brand-name"></span>
       </div>
       <a href="#cart" class="btn btn-ghost">🛒 Cart <span id="cart-count" class="ml-1 text-xs bg-emerald-600 text-white rounded-full px-1.5">0</span></a>
     </div>
@@ -71,7 +79,7 @@
   <header class="bg-gradient-to-br" style="background-image:linear-gradient(135deg,var(--hero-from),var(--hero-to))">
     <div class="mx-auto max-w-6xl px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
       <div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight text-emerald-800">Hemp-Infused Gummies (MN-Compliant)</h1>
+        <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight text-emerald-800">Minnesota-Compliant Hemp Gummies</h1>
         <p class="mt-3 text-neutral-700" id="tagline"></p>
         <div class="mt-6 flex flex-wrap gap-3 text-sm text-neutral-700">
           <span class="chip">≤ 5 mg/serv • ≤ 50 mg/pkg</span>
@@ -80,6 +88,7 @@
           <button id="open-coa-hero" class="btn btn-ghost">View COA</button>
         </div>
       </div>
+      <!-- single hero image (set via JS below) -->
       <div id="hero-img" class="aspect-[4/3] rounded-3xl bg-neutral-100 shadow-inner" aria-label="Gummies image"></div>
     </div>
   </header>
@@ -103,20 +112,31 @@
     </div>
   </section>
 
-  <!-- PRODUCTS -->
+  <!-- SHOP -->
   <section id="products" class="mx-auto max-w-6xl px-4 py-8">
     <h2 class="text-2xl font-bold mb-6">Shop</h2>
     <div class="grid sm:grid-cols-2 gap-6">
-      <article class="card card-hover p-5">
-        <!-- Full-bleed image with gradient + badges -->
-        <figure class="relative rounded-2xl overflow-hidden bg-neutral-100">
-          <img id="p-image" alt="" class="w-full h-full object-cover aspect-[4/3]" />
-          <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-black/0"></div>
-          <div class="absolute left-3 bottom-3 flex gap-2">
-            <span class="badge">COA Verified</span>
-            <span class="badge"><span id="p-strength"></span> mg Δ9</span>
+      <article class="card p-5">
+        <!-- TRUST BLOCK (COA preview + QR) instead of duplicate image -->
+        <figure class="rounded-2xl border bg-white p-4 flex items-center gap-4">
+          <div class="flex-1 text-sm">
+            <div class="font-semibold flex items-center gap-2">
+              ✅ COA Verified
+              <span class="inline-block ml-2 px-2 py-1 rounded-full border text-emerald-800">
+                <span id="p-strength"></span> mg Δ9 per gummy
+              </span>
+            </div>
+            <ul class="mt-2 space-y-1 text-neutral-700">
+              <li>Total THC / package: <strong id="p-total"></strong> mg</li>
+              <li>Batch / Lot: <span id="p-batch2"></span></li>
+              <li>Lab: Legend Technical Services (ISO/IEC 17025)</li>
+            </ul>
+            <button id="open-coa-card" class="btn btn-ghost mt-3">View full COA</button>
           </div>
-          <button id="open-coa-card" class="absolute right-3 top-3 btn btn-ghost bg-white/85 backdrop-blur text-sm">View COA</button>
+          <div class="shrink-0 text-center">
+            <canvas id="coa-qr" width="128" height="128" class="rounded-md border bg-white"></canvas>
+            <div class="text-[10px] text-neutral-500 mt-1">Scan for COA</div>
+          </div>
         </figure>
 
         <h3 class="font-semibold text-lg mt-4" id="p-name"></h3>
@@ -129,7 +149,13 @@
           <button id="add" class="btn btn-primary w-full sm:w-auto">Add to Cart</button>
           <a id="pay-cashapp" target="_blank" rel="noreferrer"
              class="btn btn-ghost w-full sm:w-auto"
-             style="border-color:var(--brand-primary);color:var(--brand-primary)">Pay with Cash App</a>
+             style="border-color:var(--brand-primary);color:var(--brand-primary)">
+            Pay with Cash App
+          </a>
+          <a id="stripe" target="_blank" rel="noreferrer"
+             class="hidden btn btn-ghost w-full sm:w-auto">
+            Buy Now (Stripe)
+          </a>
         </div>
         <div class="mt-2">
           <span id="mn-note" class="text-xs text-amber-700 hidden">Select Minnesota to enable checkout.</span>
@@ -231,25 +257,40 @@
   </div>
 
   <script>
-    const $ = sel => document.querySelector(sel);
+    const $ = s => document.querySelector(s);
     const fmt = n => n.toLocaleString("en-US",{style:"currency",currency:"USD"});
 
-    /* Init content */
+    /* Init text/logo */
     $('#logo').src = LOGO_URL;
     $('#brand-name').textContent = BRAND.name;
     $('#tagline').textContent = BRAND.tagline;
     $('#year').textContent = new Date().getFullYear();
+
+    /* Product text */
     $('#p-name').textContent = PRODUCT.name;
     $('#p-desc').textContent = PRODUCT.desc;
     $('#p-serve').textContent = `${PRODUCT.strengthMg} mg Δ9-THC per gummy × ${PRODUCT.count} gummies = ${PRODUCT.strengthMg * PRODUCT.count} mg total`;
     $('#p-batch').textContent = PRODUCT.batch;
     $('#p-price').textContent = fmt(PRODUCT.price);
-    $('#p-strength').textContent = PRODUCT.strengthMg;
-    $('#pay-cashapp').href = "https://cash.app/$CurtisGieseke";
+    $('#p-strength').textContent = PRODUCT.strengthMg.toString();
+    $('#p-total').textContent = (PRODUCT.strengthMg * PRODUCT.count).toString();
+    $('#p-batch2').textContent = PRODUCT.batch;
+    $('#pay-cashapp').href = CASH_APP_URL;
+    if (STRIPE_LINK) { const el=$('#stripe'); el.classList.remove('hidden'); el.href=STRIPE_LINK; }
     $('#coa-batch').textContent = PRODUCT.batch;
     $('#coa-link').href = PRODUCT.coaUrl;
-    $('#open-coa-card').onclick = () => toggleCOA(true);
     $('#open-coa-hero').onclick = () => toggleCOA(true);
+    $('#open-coa-card').onclick = () => toggleCOA(true);
+
+    /* QR code for COA */
+    if (window.QRCode) {
+      QRCode.toCanvas(
+        document.getElementById('coa-qr'),
+        PRODUCT.coaUrl,
+        { width: 128, margin: 1 },
+        () => {}
+      );
+    }
 
     /* State select (MN only) */
     const states=[["","Select state…"],["MN","Minnesota"],["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"],["DC","District of Columbia"]];
@@ -262,8 +303,9 @@
       else{msg.textContent="✔ Minnesota shipping available.";msg.className="text-green-700 text-sm";$('#mn-note').classList.add('hidden');}
     });
 
-    /* Cart (simple) */
-    const cart=[]; function openCart(){ $('#drawer').style.transform='translateX(0)'; }
+    /* Cart */
+    const cart=[];
+    function openCart(){ $('#drawer').style.transform='translateX(0)'; }
     function closeCart(){ $('#drawer').style.transform='translateX(100%)'; }
     function renderCart(){
       $('#cart-count').textContent = cart.reduce((s,i)=>s+i.qty,0);
@@ -272,11 +314,12 @@
         total += PRODUCT.price * item.qty;
         const row=document.createElement('div');
         row.className='card p-3 flex gap-3';
+        const imgURL = window.currentHeroURL || PRODUCT.imageFallback;
         row.innerHTML=`
-          <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${$('#p-image').src}');background-size:cover;background-position:center"></div>
+          <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${imgURL}');background-size:cover;background-position:center"></div>
           <div class="flex-1">
             <p class="font-medium">${PRODUCT.name}</p>
-            <p class="text-xs text-neutral-600">${PRODUCT.subtitle || ""}</p>
+            <p class="text-xs text-neutral-600">MN-compliant</p>
             <div class="mt-2 flex items-center gap-2">
               <button class="btn btn-ghost" data-delta="-1">−</button>
               <span>${item.qty}</span>
@@ -295,10 +338,10 @@
       $('#subtotal').textContent = fmt(total);
     }
     document.querySelector('a[href="#cart"]').addEventListener('click',(e)=>{ e.preventDefault(); openCart(); });
-    $('#add').addEventListener('click', ()=>{ const f=cart.find(i=>i.id===PRODUCT.id); if(f) f.qty+=1; else cart.push({id:PRODUCT.id,qty:1}); renderCart(); openCart(); });
+    document.getElementById('add').addEventListener('click', ()=>{ const f=cart.find(i=>i.id===PRODUCT.id); if(f) f.qty+=1; else cart.push({id:PRODUCT.id,qty:1}); renderCart(); openCart(); });
 
     /* Checkout (Cash App) */
-    $('#checkout').addEventListener('click', ()=>{
+    document.getElementById('checkout').addEventListener('click', ()=>{
       if(!cart.length) return;
       if(selectedState!=="MN"){ alert("We ship within Minnesota only. Select MN to proceed."); return; }
       const total = cart.reduce((s,i)=>s + PRODUCT.price * i.qty, 0).toFixed(2);
@@ -306,7 +349,7 @@
       const note = `Order ${orderId} — ${PRODUCT.name} x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Total $${total} — Ship: MN`;
       navigator.clipboard?.writeText(note).catch(()=>{});
       alert(`Copy this into your Cash App note before paying:\n\n${note}\n\nThen complete payment on Cash App.`);
-      window.open("https://cash.app/$CurtisGieseke","_blank");
+      window.open(CASH_APP_URL,"_blank");
     });
 
     /* COA modal + Age gate */
@@ -316,20 +359,19 @@
     window.verifyAge=verifyAge; window.closeCart=closeCart; window.toggleCOA=toggleCOA;
     if(localStorage.getItem('hemp_age_verified')!=='true') showAgeGate();
 
-    /* HERO/PRODUCT IMAGE PIPELINE — tries in order:
+    /* HERO IMAGE PIPELINE — uses ONE image total:
        1) /assets/gummies-hero.jpg or .png (upload recommended)
        2) GitHub raw /assets/gummies-hero.jpg or .png
        3) /assets/legend-coa.pdf then OneDrive COA (PDF.js render)
        4) Placeholder
     */
-    (async function setHeroAndCardImage(){
+    (async function setHeroImage(){
       const hero = $('#hero-img');
-      const cardImg = $('#p-image');
       function setBG(url){
         hero.style.backgroundImage = `url('${url}')`;
         hero.style.backgroundSize = 'cover';
         hero.style.backgroundPosition = 'center';
-        cardImg.src = url; cardImg.alt = PRODUCT.name;
+        window.currentHeroURL = url;
       }
       async function tryImg(url){
         return await new Promise(res=>{
@@ -357,7 +399,7 @@
       }
       if (await renderPdf("/assets/legend-coa.pdf")) return;
       if (await renderPdf(PRODUCT.coaUrl)) return;
-      setBG(PRODUCT.image);
+      setBG(PRODUCT.imageFallback);
     })();
   </script>
 </body>
