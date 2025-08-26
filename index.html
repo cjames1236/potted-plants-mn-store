@@ -7,19 +7,31 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="description" content="Potted Plants — Minnesota-compliant hemp-derived Δ9 gummies. Third-party tested. MN shipping only." />
   <style>
+    :root{
+      /* BRAND COLORS (evergreen + terracotta) */
+      --brand-primary:#166534;
+      --brand-primary-dark:#14532D;
+      --brand-accent:#C87542;
+
+      --chip-bg:#ECFDF5; --chip-border:#A7F3D0; --chip-text:#065F46;
+      --hero-from:#F2FBF5; --hero-to:#FFF7F0;
+    }
     .fade-in { animation: fade .25s ease-in; } @keyframes fade { from{opacity:0} to{opacity:1} }
     .card { border-radius: 1.25rem; border: 1px solid #e5e7eb; background: #fff; }
     .btn { border-radius: 1rem; padding:.6rem 1rem; font-size:.9rem; }
-    .btn-primary { background:#047857; color:#fff; } .btn-primary:hover{ background:#065f46; }
+    .btn-primary { background:var(--brand-primary); color:#fff; } .btn-primary:hover{ background:var(--brand-primary-dark); }
     .btn-ghost { border:1px solid #e5e7eb; background:#fff; } .btn-ghost:hover{ background:#f8fafc; }
-    .chip { font-size:.75rem; border:1px solid #e5e7eb; border-radius:9999px; padding:.2rem .5rem; background:#fafafa}
+    .chip { font-size:.75rem; border:1px solid var(--chip-border); border-radius:9999px; padding:.2rem .5rem; background:var(--chip-bg); color:var(--chip-text)}
   </style>
 </head>
 <body class="min-h-screen bg-neutral-50 text-neutral-900">
   <script>
-    // ----- CONFIG -----
+    // ----- CONFIG (logo + product + links) -----
     const BRAND = { name: "Potted Plants", tagline: "Minnesota-compliant hemp-derived gummies." };
-    const LOGO_URL = "https://1drv.ms/u/c/dc5c1fb05bd2de17/ERfe0luwH1wggNw_BAAAAAABQFRJkCUJyzde2tvl8vDi_A?e=Hap32m";
+
+    // ✅ Use the local logo you upload to /assets (no hotlinking)
+    const LOGO_URL = "/assets/potted-plants-logo.png";
+
     const CASH_APP_URL = "https://cash.app/$CurtisGieseke";
     const PRODUCT = {
       id: "mn-thc-gummies-10pk",
@@ -39,18 +51,18 @@
   <nav class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b">
     <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-2 font-semibold text-lg">
-        <img id="logo" class="h-8 w-8 object-contain rounded-sm" alt="Potted Plants logo">
-        <span class="text-emerald-700" id="brand-name"></span>
+        <img id="logo" class="h-9 w-auto object-contain rounded-sm" alt="Potted Plants logo">
+        <span style="color:var(--brand-primary)" id="brand-name"></span>
       </div>
       <a href="#cart" class="btn btn-ghost">🛒 Cart <span id="cart-count" class="ml-1 text-xs bg-emerald-600 text-white rounded-full px-1.5">0</span></a>
     </div>
   </nav>
 
   <!-- HERO -->
-  <header class="bg-gradient-to-br from-green-50 via-white to-amber-50">
+  <header class="bg-gradient-to-br" style="background-image:linear-gradient(135deg,var(--hero-from),var(--hero-to))">
     <div class="mx-auto max-w-6xl px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
       <div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight">Hemp-Infused Gummies (MN-Compliant)</h1>
+        <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight" style="color:var(--brand-primary)">Hemp-Infused Gummies (MN-Compliant)</h1>
         <p class="mt-3 text-neutral-700" id="tagline"></p>
         <div class="mt-6 flex flex-wrap gap-3 text-sm text-neutral-700">
           <span class="chip">≤ 5 mg/serv • ≤ 50 mg/pkg</span>
@@ -94,7 +106,7 @@
         <p class="text-sm">Batch #: <span id="p-batch"></span></p>
         <p class="font-semibold mt-2" id="p-price"></p>
         <div class="mt-4 flex flex-wrap gap-2 items-center">
-          <a id="pay-cashapp" class="btn btn-ghost" target="_blank" rel="noreferrer">Pay with Cash App</a>
+          <a id="pay-cashapp" class="btn btn-ghost" target="_blank" rel="noreferrer" style="border-color:var(--brand-primary);color:var(--brand-primary)">Pay with Cash App</a>
           <button id="add" class="btn btn-primary">Add to Cart</button>
           <button id="open-coa" class="btn btn-ghost">View COA</button>
           <span id="mn-note" class="text-xs text-amber-700 hidden">Select Minnesota to enable checkout.</span>
@@ -154,7 +166,7 @@
     </div>
   </footer>
 
-  <!-- CART DRAWER (simple) -->
+  <!-- CART DRAWER -->
   <aside id="drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl translate-x-full transition-transform fade-in">
     <div class="h-full flex flex-col">
       <div class="p-4 border-b flex items-center justify-between">
