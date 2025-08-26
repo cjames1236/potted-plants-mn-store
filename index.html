@@ -43,7 +43,9 @@
       "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/snip%20clip%20of%20Potted%20Kitchen%20logo.png";
 
     const CASH_APP_URL = "https://cash.app/$CurtisGieseke";
-    const STRIPE_LINK = ""; // keep "" to hide Stripe for now
+
+    /* ✅ Your approved Stripe Payment Link */
+    const STRIPE_LINK = "https://buy.stripe.com/cNi6oJdxgawa4mQ4oW4sE00";
 
     const PRODUCT = {
       id: "mn-thc-gummies-10pk",
@@ -142,11 +144,15 @@
         <div class="mt-4 flex flex-col sm:flex-row sm:items-center gap-2">
           <div class="text-xl font-bold sm:mr-auto" id="p-price"></div>
           <button id="add" class="btn btn-primary w-full sm:w-auto">Add to Cart</button>
+
+          <!-- Cash App -->
           <a id="pay-cashapp" target="_blank" rel="noreferrer"
              class="btn btn-ghost w-full sm:w-auto"
              style="border-color:var(--brand-primary);color:var(--brand-primary)">
             Pay with Cash App
           </a>
+
+          <!-- Stripe (shown only if STRIPE_LINK set) -->
           <a id="stripe" target="_blank" rel="noreferrer"
              class="hidden btn btn-ghost w-full sm:w-auto">
             Buy Now (Stripe)
@@ -272,7 +278,10 @@
     $('#p-total').textContent = (PRODUCT.strengthMg * PRODUCT.count).toString();
     $('#p-batch2').textContent = PRODUCT.batch;
     $('#pay-cashapp').href = CASH_APP_URL;
-    if ("") { const el=$('#stripe'); el.classList.remove('hidden'); el.href = ""; }
+
+    // Show Stripe button if link present
+    if (STRIPE_LINK) { const el=$('#stripe'); el.classList.remove('hidden'); el.href = STRIPE_LINK; }
+
     $('#coa-batch').textContent = PRODUCT.batch;
     $('#coa-link').href = PRODUCT.coaUrl;
     $('#open-coa-hero').onclick = () => toggleCOA(true);
@@ -343,11 +352,22 @@
       window.open(CASH_APP_URL, "_blank");
     });
 
-    // Make the Pay with Cash App button behave (if cart empty, add 1, then run checkout)
+    // Make the Pay with Cash App button behave
     document.getElementById('pay-cashapp').addEventListener('click', (e)=>{
       e.preventDefault();
       if(!cart.length){ cart.push({id:PRODUCT.id, qty:1}); renderCart(); }
       document.getElementById('checkout').click();
+    });
+
+    // Stripe button: enforce MN shipping
+    document.getElementById('stripe').addEventListener('click', (e)=>{
+      if (!STRIPE_LINK) return;
+      if (sel.value !== "MN") {
+        e.preventDefault();
+        const msg = document.getElementById("state-msg");
+        if (msg) { msg.textContent = "Select Minnesota to proceed to checkout."; msg.className = "text-amber-700 text-sm"; }
+        openCart();
+      }
     });
 
     // COA modal + Age gate
@@ -395,7 +415,7 @@
       setBG(PRODUCT.imageFallback);
     })();
 
-    // SMART BUY LINKS (?buy=...&qty=...&state=MN&open=cart&checkout=cashapp)
+    // SMART BUY LINKS (?buy=...&qty=...&state=MN&open=cart&checkout=cashapp|stripe)
     (function smartBuyLinks(){
       try {
         const qs = new URLSearchParams(location.search);
@@ -405,7 +425,7 @@
         const qty = Math.max(1, parseInt(qs.get("qty") || "1", 10));
         const desiredState = qs.get("state");
         const open = qs.get("open");
-        const checkout = qs.get("checkout"); // "cashapp"
+        const checkout = qs.get("checkout"); // "cashapp" | "stripe"
 
         // Preselect state
         if (desiredState) {
@@ -422,6 +442,15 @@
 
         if (checkout === "cashapp") {
           if (sel.value === "MN") document.getElementById("checkout").click();
+          else {
+            const msg = document.getElementById("state-msg");
+            if (msg) { msg.textContent = "Select Minnesota to proceed to checkout."; msg.className = "text-amber-700 text-sm"; }
+            openCart();
+          }
+        }
+
+        if (checkout === "stripe" && STRIPE_LINK) {
+          if (sel.value === "MN") window.open(STRIPE_LINK, "_blank");
           else {
             const msg = document.getElementById("state-msg");
             if (msg) { msg.textContent = "Select Minnesota to proceed to checkout."; msg.className = "text-amber-700 text-sm"; }
