@@ -4,8 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Potted Kitchen — MN-Compliant Hemp Gummies</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <meta name="description" content="Potted Kitchen — Minnesota-compliant hemp-derived Δ9 gummies. Third-party tested. MN shipping only." />
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PDF.js for COA → hero image rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+  </script>
+
   <style>
     :root{
       --brand-primary:#166534; --brand-primary-dark:#14532D; --brand-accent:#C87542;
@@ -25,7 +35,7 @@
     // ----- CONFIG (brand + logo + product + links) -----
     const BRAND = { name: "Potted Kitchen", tagline: "Minnesota-compliant hemp-derived gummies." };
 
-    // Use the RAW GitHub URL to your uploaded PNG so it always resolves
+    // Use your uploaded logo (raw GitHub URL is safest when file is at repo root with spaces):
     const LOGO_URL = "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/snip%20clip%20of%20Potted%20Kitchen%20logo.png";
 
     const CASH_APP_URL = "https://cash.app/$CurtisGieseke";
@@ -35,6 +45,7 @@
       subtitle: "2.2 mg Δ9 per gummy • 10-pack (22 mg total)",
       desc: "Compliant with Minnesota law (≤ 5 mg THC/serving and ≤ 50 mg/package). Third-party tested by Legend Technical Services (ISO/IEC 17025).",
       price: 24.99,
+      // fallback placeholder (used only if no local snapshot or COA render)
       image: "https://placehold.co/800x500/png?text=Hemp+%CE%949+Gummies+2.2mg+10pk",
       strengthMg: 2.2,
       count: 10,
@@ -58,7 +69,9 @@
   <header class="bg-gradient-to-br" style="background-image:linear-gradient(135deg,var(--hero-from),var(--hero-to))">
     <div class="mx-auto max-w-6xl px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
       <div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight" style="color:var(--brand-primary)">Hemp-Infused Gummies (MN-Compliant)</h1>
+        <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight" style="color:var(--brand-primary)">
+          Hemp-Infused Gummies (MN-Compliant)
+        </h1>
         <p class="mt-3 text-neutral-700" id="tagline"></p>
         <div class="mt-6 flex flex-wrap gap-3 text-sm text-neutral-700">
           <span class="chip">≤ 5 mg/serv • ≤ 50 mg/pkg</span>
@@ -67,7 +80,8 @@
           <button id="open-coa-hero" class="btn btn-ghost">View COA</button>
         </div>
       </div>
-      <div class="aspect-[4/3] rounded-3xl bg-neutral-100 shadow-inner" id="hero-img" aria-label="Gummies image"></div>
+      <!-- This gray box becomes the gummies image via JS below -->
+      <div id="hero-img" class="aspect-[4/3] rounded-3xl bg-neutral-100 shadow-inner" aria-label="Gummies image"></div>
     </div>
   </header>
 
@@ -219,17 +233,15 @@
     $('#p-serve').textContent = `${PRODUCT.strengthMg} mg Δ9-THC per gummy × ${PRODUCT.count} gummies = ${PRODUCT.strengthMg * PRODUCT.count} mg total`;
     $('#p-batch').textContent = PRODUCT.batch;
     $('#p-price').textContent = fmt(PRODUCT.price);
-    $('#hero-img').style.backgroundImage = `url('${PRODUCT.image}')`;
     $('#pay-cashapp').href = CASH_APP_URL;
+    $('#coa-batch').textContent = PRODUCT.batch;
+    $('#coa-link').href = PRODUCT.coaUrl;
 
     // state select (MN only)
     const states=[["","Select state…"],["MN","Minnesota"],["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"],["DC","District of Columbia"]];
     const sel=$('#state'); states.forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o);});
-
-    let selectedState="";
-    sel.addEventListener('change',()=>{
-      selectedState=sel.value;
-      const msg=$('#state-msg');
+    let selectedState=""; sel.addEventListener('change',()=>{
+      selectedState=sel.value; const msg=$('#state-msg');
       if(!selectedState){msg.textContent="";$('#mn-note').classList.add('hidden');return;}
       if(selectedState!=="MN"){msg.textContent="⚠️ We currently ship only within Minnesota.";msg.className="text-amber-700 text-sm";$('#mn-note').classList.remove('hidden');}
       else{msg.textContent="✔ Minnesota shipping available.";msg.className="text-green-700 text-sm";$('#mn-note').classList.add('hidden');}
@@ -247,7 +259,7 @@
         const row=document.createElement('div');
         row.className='card p-3 flex gap-3';
         row.innerHTML=`
-          <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${PRODUCT.image}');background-size:cover;background-position:center"></div>
+          <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${$('#hero-img').style.backgroundImage.replace(/^url\\(["']?|["']?\\)$/g,"") || PRODUCT.image}');background-size:cover;background-position:center"></div>
           <div class="flex-1">
             <p class="font-medium">${PRODUCT.name}</p>
             <p class="text-xs text-neutral-600">${PRODUCT.subtitle || ""}</p>
@@ -268,16 +280,11 @@
       });
       $('#subtotal').textContent = fmt(total);
     }
-
-    $('#add').addEventListener('click', ()=>{
-      const found=cart.find(i=>i.id===PRODUCT.id);
-      if(found) found.qty+=1; else cart.push({id:PRODUCT.id, qty:1});
-      renderCart(); openCart();
-    });
     document.querySelector('a[href="#cart"]').addEventListener('click',(e)=>{ e.preventDefault(); openCart(); });
+    document.getElementById('add').addEventListener('click', ()=>{ const f=cart.find(i=>i.id===PRODUCT.id); if(f) f.qty+=1; else cart.push({id:PRODUCT.id,qty:1}); renderCart(); openCart(); });
 
     // checkout -> Cash App with order note copied
-    $('#checkout').addEventListener('click', ()=>{
+    document.getElementById('checkout').addEventListener('click', ()=>{
       if(!cart.length) return;
       if(selectedState!=="MN"){ alert("We ship within Minnesota only. Select MN to proceed."); return; }
       const total = cart.reduce((s,i)=>s + PRODUCT.price * i.qty, 0).toFixed(2);
@@ -285,22 +292,63 @@
       const note = `Order ${orderId} — ${PRODUCT.name} x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Total ${fmt(Number(total))} — Ship: MN`;
       navigator.clipboard?.writeText(note).catch(()=>{});
       alert(`Copy this into your Cash App note before paying:\n\n${note}\n\nThen complete payment on Cash App.`);
-      window.open("https://cash.app/$CurtisGieseke","_blank");
+      window.open(CASH_APP_URL,"_blank");
     });
 
-    // COA modal + hero
+    // COA modal
     function toggleCOA(show=true){ const c=$('#coa'); c.style.display=show?'flex':'none'; }
-    $('#open-coa').onclick=()=>toggleCOA(true);
-    $('#open-coa-hero').onclick=()=>toggleCOA(true);
-    $('#coa-batch').textContent=PRODUCT.batch;
-    $('#coa-link').href=PRODUCT.coaUrl;
+    document.getElementById('open-coa').onclick=()=>toggleCOA(true);
+    document.getElementById('open-coa-hero').onclick=()=>toggleCOA(true);
 
     // Age gate
     function showAgeGate(){ const g=$('#age'); g.style.display='flex'; }
     function verifyAge(){ localStorage.setItem('hemp_age_verified','true'); const g=$('#age'); g.style.display='none'; }
     window.verifyAge=verifyAge; window.closeCart=closeCart; window.toggleCOA=toggleCOA;
-
     if(localStorage.getItem('hemp_age_verified')!=='true') showAgeGate();
+
+    // --- HERO IMAGE: local snapshot → local COA → OneDrive COA → placeholder ---
+    (async function setHeroImage(){
+      const hero = document.getElementById('hero-img');
+
+      async function tryLocal(path){
+        return await new Promise(resolve=>{
+          const img = new Image();
+          img.onload = ()=>{ hero.style.backgroundImage=`url('${path}')`; hero.style.backgroundSize='cover'; hero.style.backgroundPosition='center'; resolve(true); };
+          img.onerror = ()=> resolve(false);
+          img.src = path + '?v=' + Date.now();
+        });
+      }
+
+      // 1) Prefer a snapshot you upload (best quality, fastest)
+      if (await tryLocal('/assets/gummies-hero.jpg')) return;
+      if (await tryLocal('/assets/gummies-hero.png')) return;
+
+      // 2) Render the COA PDF with PDF.js (use local copy to avoid CORS if you can)
+      async function renderPdfToHero(url){
+        try{
+          const pdf = await pdfjsLib.getDocument({ url }).promise;
+          const page = await pdf.getPage(1);
+          const viewport = page.getViewport({ scale: 1.8 });
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = viewport.width; canvas.height = viewport.height;
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          const dataURL = canvas.toDataURL('image/png');
+          hero.style.backgroundImage = `url('${dataURL}')`;
+          hero.style.backgroundSize = 'cover';
+          hero.style.backgroundPosition = 'center';
+          return true;
+        }catch(e){ console.warn('COA render failed', e); return false; }
+      }
+
+      if (await renderPdfToHero('/assets/legend-coa.pdf')) return;   // upload your COA here if possible
+      if (await renderPdfToHero(PRODUCT.coaUrl)) return;             // OneDrive (may be blocked by CORS)
+
+      // 3) Fallback
+      hero.style.backgroundImage = `url('${PRODUCT.image}')`;
+      hero.style.backgroundSize = 'cover';
+      hero.style.backgroundPosition = 'center';
+    })();
   </script>
 </body>
 </html>
