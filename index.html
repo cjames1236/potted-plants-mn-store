@@ -134,11 +134,19 @@
     </div>
   </header>
 
+  <!-- LIMITED-TIME OFFER BANNER -->
+  <section id="promo" class="mx-auto max-w-6xl px-4 py-4">
+    <div class="card p-4 text-center bg-emerald-100 text-emerald-800">
+      <p class="font-semibold">Get 10% off orders over $50 with code <strong>POTTED10</strong>! Limited time offer.</p>
+      <a href="#products" class="btn btn-primary mt-3 inline-block" aria-label="Shop now">Shop Now</a>
+    </div>
+  </section> <!-- UPDATED: Changed banner text to 10% off orders over $50 -->
+
   <!-- ABOUT -->
   <section id="about" class="mx-auto max-w-6xl px-4 py-8">
     <h2 class="text-2xl font-bold mb-6">About Potted Kitchen</h2>
     <div class="card p-6 text-sm text-neutral-800">
-      <p>Potted Kitchen (EIN: 92-2876122) is a small, family-owned Minnesota business registered with the Minnesota Office of Cannabis Management. With a passion for crafting high-quality, hemp-derived Δ9 gummies, we’re dedicated to delivering safe, compliant products that meet the standards of Minnesota Statutes, Chapter 151, Section 72. Our gummies are third-party tested by Legend Technical Services (ISO/IEC 17025) to ensure exceptional quality and transparency for our community.</p> <!-- UPDATED: Added OCM registration -->
+      <p>Potted Kitchen (EIN: 92-2876122) is a small, family-owned Minnesota business registered with the Minnesota Office of Cannabis Management. With a passion for crafting high-quality, hemp-derived Δ9 gummies, we’re dedicated to delivering safe, compliant products that meet the standards of Minnesota Statutes, Chapter 151, Section 72. Our gummies are third-party tested by Legend Technical Services (ISO/IEC 17025) to ensure exceptional quality and transparency for our community.</p>
       <p class="mt-2">Contact us at <a href="mailto:Pottedplantsllc@yahoo.com" class="text-blue-500 hover:underline">Pottedplantsllc@yahoo.com</a>.</p>
     </div>
   </section>
@@ -192,6 +200,12 @@
 
         <h3 class="font-semibold text-lg mt-4" id="p-name"></h3>
         <p class="text-sm text-neutral-600" id="p-desc"></p>
+        <ul class="mt-2 text-sm text-neutral-600 list-disc pl-5">
+          <li>Locally crafted in Minnesota, OCM-registered</li>
+          <li>Delicious mixed fruit flavors for a delightful experience</li>
+          <li>Perfect for relaxation, 2.2mg Δ9-THC per gummy</li>
+          <li>Third-party tested for safety and potency</li>
+        </ul>
         <p class="mt-2 text-sm"><strong id="p-serve"></strong></p>
         <p class="text-sm">Batch #: <span id="p-batch"></span></p>
         <div class="mt-2">
@@ -274,6 +288,13 @@
         <p class="mt-2 text-neutral-600">7105 McCann Ct, Savage, MN 55378</p>
         <p class="mt-1 text-neutral-600"><a href="mailto:Pottedplantsllc@yahoo.com" class="hover:underline">Pottedplantsllc@yahoo.com</a></p>
         <p class="mt-1 text-neutral-600">Follow: <a href="https://www.facebook.com/potted.plants.2025" class="hover:underline" target="_blank" rel="noreferrer">Facebook</a></p>
+        <form action="https://your-mailchimp-url" method="post" class="mt-4">
+          <label for="email" class="text-sm font-semibold">Join our newsletter</label>
+          <div class="flex gap-2">
+            <input type="email" name="EMAIL" placeholder="Enter your email" class="w-full rounded-xl border px-3 py-2 text-sm" aria-label="Email for newsletter">
+            <button type="submit" class="btn btn-primary" aria-label="Subscribe to newsletter">Subscribe</button>
+          </div>
+        </form>
       </div>
       <div>
         <p class="font-semibold">Company</p>
