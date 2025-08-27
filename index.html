@@ -19,19 +19,27 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
   <style>
-    :root{
-      --brand-primary:#166534; --brand-primary-dark:#14532D;
-      --chip-bg:#ECFDF5; --chip-border:#A7F3D0; --chip-text:#065F46;
-      --hero-from:#F2FBF5; --hero-to:#FFF7F0;
+    :root {
+      --brand-primary: #166534;
+      --brand-primary-dark: #14532D;
+      --chip-bg: #ECFDF5;
+      --chip-border: #A7F3D0;
+      --chip-text: #065F46;
+      --hero-from: #F2FBF5;
+      --hero-to: #FFF7F0;
     }
-    .card{border-radius:1.25rem;border:1px solid #e5e7eb;background:#fff}
-    .btn{border-radius:1rem;padding:.6rem 1rem;font-size:.9rem}
-    .btn-primary{background:var(--brand-primary);color:#fff}.btn-primary:hover{background:var(--brand-primary-dark)}
-    .btn-ghost{border:1px solid #e5e7eb;background:#fff}.btn-ghost:hover{background:#f8fafc}
-    .chip{font-size:.75rem;border:1px solid var(--chip-border);border-radius:9999px;padding:.2rem .5rem;background:var(--chip-bg);color:var(--chip-text)}
-    .badge{font-size:.72rem;line-height:1;padding:.36rem .6rem;border-radius:999px;background:#ffffffcc;border:1px solid #e5e7eb;color:#065F46;backdrop-filter:saturate(140%) blur(6px)}
+    .card { border-radius: 1.25rem; border: 1px solid #e5e7eb; background: #fff }
+    .btn { border-radius: 1rem; padding: .6rem 1rem; font-size: .9rem }
+    .btn-primary { background: var(--brand-primary); color: #fff }
+    .btn-primary:hover { background: var(--brand-primary-dark) }
+    .btn-ghost { border: 1px solid #e5e7eb; background: #fff }
+    .btn-ghost:hover { background: #f8fafc }
+    .chip { font-size: .75rem; border: 1px solid var(--chip-border); border-radius: 9999px; padding: .2rem .5rem; background: var(--chip-bg); color: var(--chip-text) }
+    .badge { font-size: .72rem; line-height: 1; padding: .36rem .6rem; border-radius: 999px; background: #ffffffcc; border: 1px solid #e5e7eb; color: #065F46; backdrop-filter: saturate(140%) blur(6px) }
+    .no-scroll { overflow: hidden }
     @media (max-width: 640px) {
       .sticky-cta { position: sticky; bottom: 1rem; z-index: 20; }
+      #drawer { width: 100vw; max-width: none; }
     }
   </style>
   <!-- Schema markup for product -->
@@ -52,16 +60,6 @@
       "image": "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/gummies-hero.jpg"
     }
   </script>
-  <!-- Google Analytics (uncomment and add your tracking ID) -->
-  <!--
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
-  -->
 </head>
 <body class="min-h-screen bg-neutral-50 text-neutral-900">
 
@@ -330,7 +328,7 @@
   </footer>
 
   <!-- CART -->
-  <aside id="drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl translate-x-full transition-transform">
+  <aside id="drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl translate-x-full transition-transform duration-300 ease-in-out z-40">
     <div class="h-full flex flex-col">
       <div class="p-4 border-b flex items-center justify-between">
         <h4 class="font-semibold">Your Cart</h4>
@@ -356,7 +354,7 @@
   </aside>
 
   <!-- COA MODAL -->
-  <div id="coa" class="fixed inset-0 hidden items-center justify-center bg-black/50 p-4">
+  <div id="coa" class="fixed inset-0 hidden items-center justify-center bg-black/50 p-4 z-50">
     <div class="max-w-lg w-full card p-6">
       <div class="flex items-center justify-between">
         <h4 class="font-semibold">Certificate of Analysis</h4>
@@ -370,7 +368,7 @@
   </div>
 
   <!-- AGE GATE -->
-  <div id="age" class="fixed inset-0 hidden items-center justify-center bg-black/60 p-4">
+  <div id="age" class="fixed inset-0 hidden items-center justify-center bg-black/60 p-4 z-50">
     <div class="max-w-md w-full card p-6 text-center space-y-4">
       <h4 class="text-xl font-bold">Are you 21 or older?</h4>
       <p class="text-sm text-neutral-700">You must be of legal age to enter this site and purchase hemp-derived products in Minnesota.</p>
@@ -455,6 +453,19 @@
       }
     });
 
+    // Debounce function to prevent rapid cart toggling
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
     // Cart with persistence and tax calculation
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     let discountCode = localStorage.getItem('discountCode') || '';
@@ -462,12 +473,14 @@
       localStorage.setItem('cart', JSON.stringify(cart));
       localStorage.setItem('discountCode', discountCode);
     }
-    function openCart() {
+    const openCart = debounce(() => {
       $('#drawer').style.transform = 'translateX(0)';
-    }
-    function closeCart() {
+      document.body.classList.add('no-scroll');
+    }, 200);
+    const closeCart = debounce(() => {
       $('#drawer').style.transform = 'translateX(100%)';
-    }
+      document.body.classList.remove('no-scroll');
+    }, 200);
     function renderCart() {
       $('#cart-count').textContent = cart.reduce((s, i) => s + i.qty, 0);
       const wrap = $('#cart-items');
