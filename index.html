@@ -94,6 +94,14 @@
       coaUrl: "https://1drv.ms/b/c/dc5c1fb05bd2de17/ERfe0luwH1wggNytEAAAAAABBc6xNatFTT68cmIluAhg9A?e=HJCaQQ"
     };
 
+    // Tax rates (Minnesota, effective July 1, 2025)
+    const CANNABIS_TAX_RATE = 0.15; // 15% Cannabis Tax
+    const STATE_SALES_TAX_RATE = 0.06875; // 6.875% State Sales Tax
+    const TOTAL_TAX_RATE = CANNABIS_TAX_RATE + STATE_SALES_TAX_RATE; // 21.875%
+    const DISCOUNT_CODE = "POTTED10";
+    const DISCOUNT_THRESHOLD = 50;
+    const DISCOUNT_RATE = 0.1; // 10% off
+
     window.currentHeroURL = PRODUCT.imageFallback;
   </script>
 
@@ -140,7 +148,7 @@
       <p class="font-semibold">Get 10% off orders over $50 with code <strong>POTTED10</strong>! Limited time offer.</p>
       <a href="#products" class="btn btn-primary mt-3 inline-block" aria-label="Shop now">Shop Now</a>
     </div>
-  </section> <!-- UPDATED: Changed banner text to 10% off orders over $50 -->
+  </section>
 
   <!-- ABOUT -->
   <section id="about" class="mx-auto max-w-6xl px-4 py-8">
@@ -330,8 +338,17 @@
       </div>
       <div class="flex-1 overflow-auto p-4 space-y-3" id="cart-items"></div>
       <div class="border-t p-4 space-y-3">
+        <div class="flex gap-2">
+          <input type="text" id="discount-code" placeholder="Enter discount code" class="w-full rounded-xl border px-3 py-2 text-sm" aria-label="Discount code">
+          <button id="apply-discount" class="btn btn-primary" aria-label="Apply discount code">Apply</button>
+        </div>
+        <p id="discount-error" class="text-xs text-red-600 hidden mt-1">Invalid code or order below $50.</p>
         <div class="flex items-center justify-between text-sm"><span>Subtotal</span><span id="subtotal" class="font-semibold">$0.00</span></div>
-        <p class="text-xs text-neutral-500">Taxes/shipping at payment.</p>
+        <div class="flex items-center justify-between text-sm"><span>Discount</span><span id="discount" class="font-semibold text-emerald-600">$0.00</span></div>
+        <div class="flex items-center justify-between text-sm"><span>Cannabis Tax (15%)</span><span id="cannabis-tax" class="font-semibold">$0.00</span></div>
+        <div class="flex items-center justify-between text-sm"><span>State Sales Tax (6.875%)</span><span id="state-tax" class="font-semibold">$0.00</span></div>
+        <div class="flex items-center justify-between text-sm font-bold"><span>Total</span><span id="total" class="font-bold">$0.00</span></div>
+        <p class="text-xs text-neutral-500">Local taxes may apply based on your shipping location. Shipping calculated at payment.</p>
         <button id="checkout" class="btn btn-primary w-full" aria-label="Proceed to checkout">Pay with Cash App</button>
         <a id="stripe-checkout" href="https://buy.stripe.com/cNi6oJdxgawa4mQ4oW4sE00" target="_blank" rel="noreferrer" class="btn btn-ghost w-full hidden" aria-label="Pay with Stripe">Pay with Stripe</a>
       </div>
@@ -368,7 +385,7 @@
   <!-- MAIN JS (vanilla) -->
   <script>
     const $ = s => document.querySelector(s);
-    const fmt = n => n.toLocaleString("en-US",{style:"currency",currency:"USD"});
+    const fmt = n => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
     // Init text/logo
     $('#logo').src = LOGO_URL;
@@ -406,34 +423,62 @@
 
     // QR code
     if (window.QRCode) {
-      QRCode.toCanvas(document.getElementById('coa-qr'), PRODUCT.coaUrl, { width:128, margin:1 }, ()=>{});
+      QRCode.toCanvas(document.getElementById('coa-qr'), PRODUCT.coaUrl, { width: 128, margin: 1 }, () => {});
     }
 
     // State select (MN only)
-    const states=[["","Select state…"],["MN","Minnesota"],["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"],["DC","District of Columbia"]];
-    const sel=$('#state'); states.forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o);});
-    let selectedState="";
-    sel.addEventListener('change',()=>{
-      selectedState=sel.value; const msg=$('#state-msg');
-      if(!selectedState){msg.textContent="";$('#mn-note').classList.add('hidden');return;}
-      if(selectedState!=="MN"){msg.textContent="⚠️ We currently ship only within Minnesota.";msg.className="text-amber-700 text-sm";$('#mn-note').classList.remove('hidden');}
-      else{msg.textContent="✔ Minnesota shipping available.";msg.className="text-green-700 text-sm";$('#mn-note').classList.add('hidden');}
+    const states = [["", "Select state…"], ["MN", "Minnesota"], ["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"], ["CA", "California"], ["CO", "Colorado"], ["CT", "Connecticut"], ["DE", "Delaware"], ["FL", "Florida"], ["GA", "Georgia"], ["HI", "Hawaii"], ["ID", "Idaho"], ["IL", "Illinois"], ["IN", "Indiana"], ["IA", "Iowa"], ["KS", "Kansas"], ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"], ["MD", "Maryland"], ["MA", "Massachusetts"], ["MI", "Michigan"], ["MS", "Mississippi"], ["MO", "Missouri"], ["MT", "Montana"], ["NE", "Nebraska"], ["NV", "Nevada"], ["NH", "New Hampshire"], ["NJ", "New Jersey"], ["NM", "New Mexico"], ["NY", "New York"], ["NC", "North Carolina"], ["ND", "North Dakota"], ["OH", "Ohio"], ["OK", "Oklahoma"], ["OR", "Oregon"], ["PA", "Pennsylvania"], ["RI", "Rhode Island"], ["SC", "South Carolina"], ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"], ["UT", "Utah"], ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"], ["WV", "West Virginia"], ["WI", "Wisconsin"], ["WY", "Wyoming"], ["DC", "District of Columbia"]];
+    const sel = $('#state');
+    states.forEach(([v, t]) => {
+      const o = document.createElement('option');
+      o.value = v;
+      o.textContent = t;
+      sel.appendChild(o);
+    });
+    let selectedState = "";
+    sel.addEventListener('change', () => {
+      selectedState = sel.value;
+      const msg = $('#state-msg');
+      if (!selectedState) {
+        msg.textContent = "";
+        $('#mn-note').classList.add('hidden');
+        return;
+      }
+      if (selectedState !== "MN") {
+        msg.textContent = "⚠️ We currently ship only within Minnesota.";
+        msg.className = "text-amber-700 text-sm";
+        $('#mn-note').classList.remove('hidden');
+      } else {
+        msg.textContent = "✔ Minnesota shipping available.";
+        msg.className = "text-green-700 text-sm";
+        $('#mn-note').classList.add('hidden');
+      }
     });
 
-    // Cart with persistence
+    // Cart with persistence and tax calculation
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    function saveCart() { localStorage.setItem('cart', JSON.stringify(cart)); }
-    function openCart(){ $('#drawer').style.transform='translateX(0)'; }
-    function closeCart(){ $('#drawer').style.transform='translateX(100%)'; }
-    function renderCart(){
-      $('#cart-count').textContent = cart.reduce((s,i)=>s+i.qty,0);
-      const wrap=$('#cart-items'); wrap.innerHTML=''; let total=0;
-      cart.forEach(item=>{
-        total += PRODUCT.price * item.qty;
-        const row=document.createElement('div');
-        row.className='card p-3 flex gap-3';
+    let discountCode = localStorage.getItem('discountCode') || '';
+    function saveCart() {
+      localStorage.setItem('cart', JSON.stringify(cart));
+      localStorage.setItem('discountCode', discountCode);
+    }
+    function openCart() {
+      $('#drawer').style.transform = 'translateX(0)';
+    }
+    function closeCart() {
+      $('#drawer').style.transform = 'translateX(100%)';
+    }
+    function renderCart() {
+      $('#cart-count').textContent = cart.reduce((s, i) => s + i.qty, 0);
+      const wrap = $('#cart-items');
+      wrap.innerHTML = '';
+      let subtotal = 0;
+      cart.forEach(item => {
+        subtotal += PRODUCT.price * item.qty;
+        const row = document.createElement('div');
+        row.className = 'card p-3 flex gap-3';
         const imgURL = window.currentHeroURL || PRODUCT.imageFallback;
-        row.innerHTML=`
+        row.innerHTML = `
           <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${imgURL}');background-size:cover;background-position:center" aria-label="Product image"></div>
           <div class="flex-1">
             <p class="font-medium">${PRODUCT.name}</p>
@@ -448,58 +493,122 @@
             <div class="font-semibold">${fmt(PRODUCT.price * item.qty)}</div>
             <button class="text-xs text-neutral-500 hover:underline" data-remove aria-label="Remove item">Remove</button>
           </div>`;
-        row.querySelector('[data-delta="-1"]').onclick=()=>{ item.qty=Math.max(1,item.qty-1); saveCart(); renderCart(); };
-        row.querySelector('[data-delta="+1"]').onclick=()=>{ item.qty=item.qty+1; saveCart(); renderCart(); };
-        row.querySelector('[data-remove]').onclick=()=>{ cart.splice(cart.indexOf(item),1); saveCart(); renderCart(); };
+        row.querySelector('[data-delta="-1"]').onclick = () => {
+          item.qty = Math.max(1, item.qty - 1);
+          saveCart();
+          renderCart();
+        };
+        row.querySelector('[data-delta="+1"]').onclick = () => {
+          item.qty = item.qty + 1;
+          saveCart();
+          renderCart();
+        };
+        row.querySelector('[data-remove]').onclick = () => {
+          cart.splice(cart.indexOf(item), 1);
+          saveCart();
+          renderCart();
+        };
         wrap.appendChild(row);
       });
-      $('#subtotal').textContent = fmt(total);
+      let discount = 0;
+      if (discountCode === DISCOUNT_CODE && subtotal > DISCOUNT_THRESHOLD) {
+        discount = subtotal * DISCOUNT_RATE;
+      }
+      const taxableAmount = subtotal - discount;
+      const cannabisTax = taxableAmount * CANNABIS_TAX_RATE;
+      const stateTax = taxableAmount * STATE_SALES_TAX_RATE;
+      const total = taxableAmount + cannabisTax + stateTax;
+      $('#subtotal').textContent = fmt(subtotal);
+      $('#discount').textContent = fmt(discount);
+      $('#cannabis-tax').textContent = fmt(cannabisTax);
+      $('#state-tax').textContent = fmt(stateTax);
+      $('#total').textContent = fmt(total);
+      $('#discount-code').value = discountCode;
       saveCart();
     }
-    document.querySelector('a[href="#cart"]').addEventListener('click',(e)=>{ e.preventDefault(); openCart(); });
-    document.getElementById('add').addEventListener('click', ()=>{ 
-      const f=cart.find(i=>i.id===PRODUCT.id); 
-      if(f) f.qty+=1; else cart.push({id:PRODUCT.id,qty:1}); 
-      saveCart(); 
-      renderCart(); 
-      openCart(); 
+
+    // Discount code application
+    $('#apply-discount').addEventListener('click', () => {
+      discountCode = $('#discount-code').value.trim();
+      const error = $('#discount-error');
+      if (discountCode === DISCOUNT_CODE && cart.reduce((s, i) => s + PRODUCT.price * i.qty, 0) > DISCOUNT_THRESHOLD) {
+        error.classList.add('hidden');
+      } else {
+        error.classList.remove('hidden');
+        discountCode = '';
+      }
+      saveCart();
+      renderCart();
+    });
+
+    document.querySelector('a[href="#cart"]').addEventListener('click', (e) => {
+      e.preventDefault();
+      openCart();
+    });
+    document.getElementById('add').addEventListener('click', () => {
+      const f = cart.find(i => i.id === PRODUCT.id);
+      if (f) f.qty += 1;
+      else cart.push({ id: PRODUCT.id, qty: 1 });
+      saveCart();
+      renderCart();
+      openCart();
     });
 
     // Cash App checkout button
-    document.getElementById('checkout').addEventListener('click', ()=>{
-      if(!cart.length) return;
-      if(sel.value!=="MN"){ alert("We ship within Minnesota only. Select MN to proceed."); return; }
-      const total = cart.reduce((s,i)=>s + PRODUCT.price * i.qty, 0);
-      const orderId = "PK-" + Math.random().toString(36).slice(2,8).toUpperCase();
+    document.getElementById('checkout').addEventListener('click', () => {
+      if (!cart.length) return;
+      if (sel.value !== "MN") {
+        alert("We ship within Minnesota only. Select MN to proceed.");
+        return;
+      }
+      const subtotal = cart.reduce((s, i) => s + PRODUCT.price * i.qty, 0);
+      let discount = 0;
+      if (discountCode === DISCOUNT_CODE && subtotal > DISCOUNT_THRESHOLD) {
+        discount = subtotal * DISCOUNT_RATE;
+      }
+      const taxableAmount = subtotal - discount;
+      const cannabisTax = taxableAmount * CANNABIS_TAX_RATE;
+      const stateTax = taxableAmount * STATE_SALES_TAX_RATE;
+      const total = taxableAmount + cannabisTax + stateTax;
+      const orderId = "PK-" + Math.random().toString(36).slice(2, 8).toUpperCase();
       const flavor = $('#flavor').value;
-      const note = `Order ${orderId} — ${PRODUCT.name} (${flavor}) x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Total ${fmt(total)} — Ship: MN`;
-      try { navigator.clipboard?.writeText(note); } catch {}
+      const note = `Order ${orderId} — ${PRODUCT.name} (${flavor}) x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Subtotal ${fmt(subtotal)} — Discount ${fmt(discount)} — Cannabis Tax (15%) ${fmt(cannabisTax)} — State Sales Tax (6.875%) ${fmt(stateTax)} — Total ${fmt(total)} — Ship: MN`;
+      try {
+        navigator.clipboard?.writeText(note);
+      } catch {}
       alert(`Copy this into your Cash App note before paying:\n\n${note}`);
       window.open(CASH_APP_URL, "_blank");
     });
 
     // Pay with Cash App button
-    document.getElementById('pay-cashapp').addEventListener('click', (e)=>{
+    document.getElementById('pay-cashapp').addEventListener('click', (e) => {
       e.preventDefault();
-      if(!cart.length){ cart.push({id:PRODUCT.id, qty:1}); saveCart(); renderCart(); }
+      if (!cart.length) {
+        cart.push({ id: PRODUCT.id, qty: 1 });
+        saveCart();
+        renderCart();
+      }
       document.getElementById('checkout').click();
     });
 
     // Stripe button: enforce MN shipping
-    document.getElementById('stripe').addEventListener('click', (e)=>{
+    document.getElementById('stripe').addEventListener('click', (e) => {
       if (!STRIPE_LINK) return;
       if (sel.value !== "MN") {
         e.preventDefault();
         const msg = document.getElementById("state-msg");
-        if (msg) { msg.textContent = "Select Minnesota to proceed to checkout."; msg.className = "text-amber-700 text-sm"; }
+        if (msg) {
+          msg.textContent = "Select Minnesota to proceed to checkout.";
+          msg.className = "text-amber-700 text-sm";
+        }
         openCart();
       }
     });
 
     // COA modal + Age gate
-    async function toggleCOA(show=true){
-      const c=$('#coa'); 
-      c.style.display=show?'flex':'none';
+    async function toggleCOA(show = true) {
+      const c = $('#coa');
+      c.style.display = show ? 'flex' : 'none';
       if (show) {
         try {
           const script = document.createElement('script');
@@ -510,38 +619,49 @@
             const viewport = page.getViewport({ scale: 1.8 });
             const canvas = $('#coa-canvas');
             const ctx = canvas.getContext('2d');
-            canvas.width = viewport.width; canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
             await page.render({ canvasContext: ctx, viewport }).promise;
             $('#coa-error').classList.add('hidden');
           };
-          script.onerror = () => { $('#coa-error').classList.remove('hidden'); };
+          script.onerror = () => {
+            $('#coa-error').classList.remove('hidden');
+          };
           document.head.appendChild(script);
         } catch {
           $('#coa-error').classList.remove('hidden');
         }
       }
     }
-    function showAgeGate(){ const g=$('#age'); g.style.display='flex'; }
-    function verifyAge(){
-      localStorage.setItem('hemp_age_verified', JSON.stringify({ verified: true, timestamp: Date.now() }));
-      $('#age').style.display='none';
+    function showAgeGate() {
+      const g = $('#age');
+      g.style.display = 'flex';
     }
-    window.verifyAge=verifyAge; window.closeCart=closeCart; window.toggleCOA=toggleCOA;
+    function verifyAge() {
+      localStorage.setItem('hemp_age_verified', JSON.stringify({ verified: true, timestamp: Date.now() }));
+      $('#age').style.display = 'none';
+    }
+    window.verifyAge = verifyAge;
+    window.closeCart = closeCart;
+    window.toggleCOA = toggleCOA;
     const ageData = JSON.parse(localStorage.getItem('hemp_age_verified') || '{}');
     if (!ageData.verified || (Date.now() - ageData.timestamp > 30 * 24 * 60 * 60 * 1000)) showAgeGate();
 
     // HERO IMAGE PIPELINE
-    (async function setHeroImage(){
+    (async function setHeroImage() {
       const hero = $('#hero-img');
-      function setBG(url){
+      function setBG(url) {
         hero.style.backgroundImage = `url('${url}')`;
         hero.style.backgroundSize = 'cover';
         hero.style.backgroundPosition = 'center';
         window.currentHeroURL = url;
       }
-      async function tryImg(url){
-        return await new Promise(res=>{
-          const i=new Image(); i.onload=()=>res(true); i.onerror=()=>res(false); i.src=url+"?v="+Date.now();
+      async function tryImg(url) {
+        return await new Promise(res => {
+          const i = new Image();
+          i.onload = () => res(true);
+          i.onerror = () => res(false);
+          i.src = url + "?v=" + Date.now();
         });
       }
       const candidates = [
@@ -550,13 +670,18 @@
         "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/gummies-hero.jpg",
         "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/gummies-hero.png",
       ];
-      for (const c of candidates){ if (await tryImg(c)) { setBG(c); return; } }
+      for (const c of candidates) {
+        if (await tryImg(c)) {
+          setBG(c);
+          return;
+        }
+      }
       setBG(PRODUCT.imageFallback);
       hero.innerHTML = '<p class="text-sm text-neutral-600 text-center mt-4">Image unavailable</p>';
     })();
 
     // SMART BUY LINKS
-    (function smartBuyLinks(){
+    (function smartBuyLinks() {
       try {
         const qs = new URLSearchParams(location.search);
         const buy = qs.get("buy");
@@ -573,7 +698,8 @@
         }
 
         const existing = cart.find(i => i.id === PRODUCT.id);
-        if (existing) existing.qty += qty; else cart.push({ id:PRODUCT.id, qty });
+        if (existing) existing.qty += qty;
+        else cart.push({ id: PRODUCT.id, qty });
         saveCart();
         renderCart();
 
@@ -583,7 +709,10 @@
           if (sel.value === "MN") document.getElementById("checkout").click();
           else {
             const msg = document.getElementById("state-msg");
-            if (msg) { msg.textContent = "Select Minnesota to proceed to checkout."; msg.className = "text-amber-700 text-sm"; }
+            if (msg) {
+              msg.textContent = "Select Minnesota to proceed to checkout.";
+              msg.className = "text-amber-700 text-sm";
+            }
             openCart();
           }
         }
@@ -592,7 +721,10 @@
           if (sel.value === "MN") window.open(STRIPE_LINK, "_blank");
           else {
             const msg = document.getElementById("state-msg");
-            if (msg) { msg.textContent = "Select Minnesota to proceed to checkout."; msg.className = "text-amber-700 text-sm"; }
+            if (msg) {
+              msg.textContent = "Select Minnesota to proceed to checkout.";
+              msg.className = "text-amber-700 text-sm";
+            }
             openCart();
           }
         }
