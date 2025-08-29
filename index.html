@@ -8,7 +8,7 @@
   <!-- Open Graph tags for social media sharing -->
   <meta property="og:title" content="Potted Kitchen — MN-Compliant Hemp Gummies" />
   <meta property="og:description" content="Shop Minnesota-compliant Δ9 THC gummies with ≤5mg per serving. Third-party tested, 21+ only, MN shipping." />
-  <meta property="og:image" content="https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/gummies-hero.jpg" />
+  <meta property="og:image" content="/assets/gummies-hero.jpg" />
   <meta property="og:url" content="https://potted-plants-mn-store.vercel.app/" />
   <meta name="keywords" content="Minnesota hemp gummies, Δ9 THC edibles, MN-compliant THC, Potted Kitchen, hemp gummies MN" />
 
@@ -57,7 +57,7 @@
         "availability": "https://schema.org/InStock",
         "url": "https://potted-plants-mn-store.vercel.app/"
       },
-      "image": "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/gummies-hero.jpg"
+      "image": "/assets/gummies-hero.jpg"
     }
   </script>
 </head>
@@ -74,11 +74,9 @@
       facebookProfile: "https://www.facebook.com/potted.plants.2025"
     };
 
-    const LOGO_URL =
-      "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/snip%20clip%20of%20Potted%20Kitchen%20logo.png";
+    const LOGO_URL = "/assets/logo.png"; // Place logo.png in public/assets
 
     const CASH_APP_URL = "https://cash.app/$CurtisGieseke";
-    const STRIPE_LINK = "https://buy.stripe.com/cNi6oJdxgawa4mQ4oW4sE00";
 
     const PRODUCT = {
       id: "mn-thc-gummies-10pk",
@@ -227,14 +225,12 @@
           <div class="text-xl font-bold sm:mr-auto" id="p-price"></div>
           <button id="add" class="btn btn-primary w-full sm:w-auto" aria-label="Add to cart">Add to Cart</button>
           <a id="pay-cashapp" target="_blank" rel="noreferrer" class="btn btn-ghost w-full sm:w-auto" style="border-color:var(--brand-primary);color:var(--brand-primary)" aria-label="Pay with Cash App">Pay with Cash App</a>
-          <a id="stripe" target="_blank" rel="noreferrer" class="hidden btn btn-ghost w-full sm:w-auto" aria-label="Pay with Stripe">Buy Now (Stripe)</a>
         </div>
         <div class="mt-2">
           <span id="mn-note" class="text-xs text-amber-700 hidden">Select Minnesota to enable checkout.</span>
         </div>
         <div class="mt-2 flex gap-2">
           <span class="chip">Secure Checkout</span>
-          <span class="chip">Stripe</span>
           <span class="chip">Cash App</span>
         </div>
       </article>
@@ -348,7 +344,6 @@
         <div class="flex items-center justify-between text-sm font-bold"><span>Total</span><span id="total" class="font-bold">$0.00</span></div>
         <p class="text-xs text-neutral-500">Local taxes may apply based on your shipping location. Shipping calculated at payment.</p>
         <button id="checkout" class="btn btn-primary w-full" aria-label="Proceed to checkout">Pay with Cash App</button>
-        <a id="stripe-checkout" href="https://buy.stripe.com/cNi6oJdxgawa4mQ4oW4sE00" target="_blank" rel="noreferrer" class="btn btn-ghost w-full hidden" aria-label="Pay with Stripe">Pay with Stripe</a>
       </div>
     </div>
   </aside>
@@ -386,6 +381,9 @@
     const fmt = n => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
     // Init text/logo
+    $('#logo').onerror = () => {
+      $('#logo').src = 'https://placehold.co/100x100/png?text=Logo';
+    };
     $('#logo').src = LOGO_URL;
     $('#brand-name').textContent = BRAND.name;
     $('#tagline').textContent = BRAND.tagline;
@@ -395,23 +393,13 @@
     // Product text
     $('#p-name').textContent = PRODUCT.name;
     $('#p-desc').textContent = PRODUCT.desc;
-    $('#p-serve').textContent = ${PRODUCT.strengthMg} mg Δ9-THC per gummy × ${PRODUCT.count} gummies = ${PRODUCT.strengthMg * PRODUCT.count} mg total;
+    $('#p-serve').textContent = `${PRODUCT.strengthMg} mg Δ9-THC per gummy × ${PRODUCT.count} gummies = ${PRODUCT.strengthMg * PRODUCT.count} mg total`;
     $('#p-batch').textContent = PRODUCT.batch;
     $('#p-price').textContent = fmt(PRODUCT.price);
     $('#p-strength').textContent = PRODUCT.strengthMg.toString();
     $('#p-total').textContent = (PRODUCT.strengthMg * PRODUCT.count).toString();
     $('#p-batch2').textContent = PRODUCT.batch;
     $('#pay-cashapp').href = CASH_APP_URL;
-
-    // Show Stripe buttons if link present
-    if (STRIPE_LINK) { 
-      const el = $('#stripe'); 
-      el.classList.remove('hidden'); 
-      el.href = STRIPE_LINK; 
-      const elCheckout = $('#stripe-checkout');
-      elCheckout.classList.remove('hidden');
-      elCheckout.href = STRIPE_LINK;
-    }
 
     $('#coa-batch').textContent = PRODUCT.batch;
     $('#coa-link').href = PRODUCT.coaUrl;
@@ -491,8 +479,8 @@
         const row = document.createElement('div');
         row.className = 'card p-3 flex gap-3';
         const imgURL = window.currentHeroURL || PRODUCT.imageFallback;
-        row.innerHTML = 
-          <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${imgURL}');background-size:cover;background-position:center" aria-label="Product image"></div>
+        row.innerHTML = `
+          <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${imgURL}');background-size:cover;background-position:center" aria-label="Product image" onerror="this.style.backgroundImage='url(${PRODUCT.imageFallback})'"></div>
           <div class="flex-1">
             <p class="font-medium">${PRODUCT.name}</p>
             <p class="text-xs text-neutral-600">MN-compliant</p>
@@ -505,7 +493,7 @@
           <div class="text-right">
             <div class="font-semibold">${fmt(PRODUCT.price * item.qty)}</div>
             <button class="text-xs text-neutral-500 hover:underline" data-remove aria-label="Remove item">Remove</button>
-          </div>;
+          </div>`;
         row.querySelector('[data-delta="-1"]').onclick = () => {
           item.qty = Math.max(1, item.qty - 1);
           saveCart();
@@ -585,11 +573,11 @@
       const total = taxableAmount + cannabisTax + stateTax;
       const orderId = "PK-" + Math.random().toString(36).slice(2, 8).toUpperCase();
       const flavor = $('#flavor').value;
-      const note = Order ${orderId} — ${PRODUCT.name} (${flavor}) x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Subtotal ${fmt(subtotal)} — Discount ${fmt(discount)} — Cannabis Tax (15%) ${fmt(cannabisTax)} — State Sales Tax (6.875%) ${fmt(stateTax)} — Total ${fmt(total)} — Ship: MN;
+      const note = `Order ${orderId} — ${PRODUCT.name} (${flavor}) x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Subtotal ${fmt(subtotal)} — Discount ${fmt(discount)} — Cannabis Tax (15%) ${fmt(cannabisTax)} — State Sales Tax (6.875%) ${fmt(stateTax)} — Total ${fmt(total)} — Ship: MN`;
       try {
         navigator.clipboard?.writeText(note);
       } catch {}
-      alert(Copy this into your Cash App note before paying:\n\n${note});
+      alert(`Copy this into your Cash App note before paying:\n\n${note}`);
       window.open(CASH_APP_URL, "_blank");
     });
 
@@ -602,20 +590,6 @@
         renderCart();
       }
       document.getElementById('checkout').click();
-    });
-
-    // Stripe button: enforce MN shipping
-    document.getElementById('stripe').addEventListener('click', (e) => {
-      if (!STRIPE_LINK) return;
-      if (sel.value !== "MN") {
-        e.preventDefault();
-        const msg = document.getElementById("state-msg");
-        if (msg) {
-          msg.textContent = "Select Minnesota to proceed to checkout.";
-          msg.className = "text-amber-700 text-sm";
-        }
-        openCart();
-      }
     });
 
     // COA modal + Age gate
@@ -663,34 +637,25 @@
     // HERO IMAGE PIPELINE
     (async function setHeroImage() {
       const hero = $('#hero-img');
+      const imageUrl = "/assets/gummies-hero.jpg"; // Place gummies-hero.jpg in public/assets
       function setBG(url) {
-        hero.style.backgroundImage = url('${url}');
+        hero.style.backgroundImage = `url('${url}')`;
         hero.style.backgroundSize = 'cover';
         hero.style.backgroundPosition = 'center';
         window.currentHeroURL = url;
       }
-      async function tryImg(url) {
-        return await new Promise(res => {
-          const i = new Image();
-          i.onload = () => res(true);
-          i.onerror = () => res(false);
-          i.src = url + "?v=" + Date.now();
-        });
+      const success = await new Promise(res => {
+        const i = new Image();
+        i.onload = () => res(true);
+        i.onerror = () => res(false);
+        i.src = imageUrl;
+      });
+      if (success) {
+        setBG(imageUrl);
+      } else {
+        setBG(PRODUCT.imageFallback);
+        hero.innerHTML = '<p class="text-sm text-neutral-600 text-center mt-4">Image unavailable</p>';
       }
-      const candidates = [
-        "/assets/gummies-hero.jpg",
-        "/assets/gummies-hero.png",
-        "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/gummies-hero.jpg",
-        "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/gummies-hero.png",
-      ];
-      for (const c of candidates) {
-        if (await tryImg(c)) {
-          setBG(c);
-          return;
-        }
-      }
-      setBG(PRODUCT.imageFallback);
-      hero.innerHTML = '<p class="text-sm text-neutral-600 text-center mt-4">Image unavailable</p>';
     })();
 
     // SMART BUY LINKS
@@ -720,18 +685,6 @@
 
         if (checkout === "cashapp") {
           if (sel.value === "MN") document.getElementById("checkout").click();
-          else {
-            const msg = document.getElementById("state-msg");
-            if (msg) {
-              msg.textContent = "Select Minnesota to proceed to checkout.";
-              msg.className = "text-amber-700 text-sm";
-            }
-            openCart();
-          }
-        }
-
-        if (checkout === "stripe" && STRIPE_LINK) {
-          if (sel.value === "MN") window.open(STRIPE_LINK, "_blank");
           else {
             const msg = document.getElementById("state-msg");
             if (msg) {
