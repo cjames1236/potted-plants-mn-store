@@ -8,7 +8,7 @@
   <!-- Open Graph tags for social media sharing -->
   <meta property="og:title" content="Potted Kitchen — MN-Compliant Hemp Gummies" />
   <meta property="og:description" content="Shop Minnesota-compliant Δ9 THC gummies with ≤5mg per serving. Third-party tested, 21+ only, MN shipping." />
-  <meta property="og:image" content="/assets/gummies-hero.jpg" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/gummies-hero.png" />
   <meta property="og:url" content="https://potted-plants-mn-store.vercel.app/" />
   <meta name="keywords" content="Minnesota hemp gummies, Δ9 THC edibles, MN-compliant THC, Potted Kitchen, hemp gummies MN" />
 
@@ -57,7 +57,7 @@
         "availability": "https://schema.org/InStock",
         "url": "https://potted-plants-mn-store.vercel.app/"
       },
-      "image": "/assets/gummies-hero.jpg"
+      "image": "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/gummies-hero.png"
     }
   </script>
 </head>
@@ -74,7 +74,8 @@
       facebookProfile: "https://www.facebook.com/potted.plants.2025"
     };
 
-    const LOGO_URL = "/assets/logo.png"; // Place logo.png in public/assets
+    // GitHub raw URL for snip clip of Potted Kitchen logo.png
+    const LOGO_URL = "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/snip%20clip%20of%20Potted%20Kitchen%20logo.png";
 
     const CASH_APP_URL = "https://cash.app/$CurtisGieseke";
 
@@ -637,7 +638,8 @@
     // HERO IMAGE PIPELINE
     (async function setHeroImage() {
       const hero = $('#hero-img');
-      const imageUrl = "/assets/gummies-hero.jpg"; // Place gummies-hero.jpg in public/assets
+      // GitHub raw URL for gummies-hero.png
+      const imageUrl = "https://raw.githubusercontent.com/cjames1236/potted-plants-mn-store/main/assets/gummies-hero.png";
       function setBG(url) {
         hero.style.backgroundImage = `url('${url}')`;
         hero.style.backgroundSize = 'cover';
