@@ -121,11 +121,38 @@
     </div>
   </nav>
 
+  <!-- HERO -->
+  <header id="home" class="bg-gradient-to-br" style="background-image:linear-gradient(135deg,var(--hero-from),var(--hero-to))">
+    <div class="mx-auto max-w-6xl px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight text-emerald-800">Minnesota-Compliant Hemp Gummies</h1>
+        <p class="mt-3 text-neutral-700" id="tagline"></p>
+        <div class="mt-6 flex flex-wrap gap-3 text-sm text-neutral-700">
+          <span class="chip">≤ 5 mg/serv • ≤ 50 mg/pkg</span>
+          <span class="chip">21+ only</span>
+          <span class="chip">MN shipping only</span>
+          <button id="open-coa-hero" class="btn btn-ghost" aria-label="View Certificate of Analysis">View COA</button>
+          <a href="https://1drv.ms/b/c/dc5c1fb05bd2de17/ERfe0luwH1wggNytEAAAAAABBc6xNatFTT68cmIluAhg9A?e=HJCaQQ" target="_blank" rel="noreferrer" class="btn btn-ghost" aria-label="Download Certificate of Analysis">Download COA</a>
+        </div>
+      </div>
+      <div id="hero-img" class="aspect-[4/3] rounded-3xl bg-neutral-100 shadow-inner" aria-label="Product image"></div>
+    </div>
+  </header>
+
+  <!-- LIMITED-TIME OFFER BANNER -->
+  <section id="promo" class="mx-auto max-w-6xl px-4 py-4">
+    <div class="card p-4 text-center bg-emerald-100 text-emerald-800">
+      <p class="font-semibold">Get 10% off orders over $50 with code <strong>POTTED10</strong>! Limited time offer.</p>
+      <a href="#products" class="btn btn-primary mt-3 inline-block" aria-label="Shop now">Shop Now</a>
+    </div>
+  </section>
+
   <!-- SHOP -->
   <section id="products" class="mx-auto max-w-6xl px-4 py-8">
     <h2 class="text-2xl font-bold mb-6">Shop</h2>
     <div class="grid sm:grid-cols-2 gap-6">
       <article class="card p-5">
+        <!-- TRUST BLOCK (COA preview + QR) -->
         <figure class="rounded-2xl border bg-white p-4 flex items-center gap-4">
           <div class="flex-1 text-sm">
             <div class="font-semibold flex items-center gap-2">
@@ -206,7 +233,7 @@
     $('#p-batch2').textContent = PRODUCT.batch;
     $('#pay-cashapp').href = CASH_APP_URL;
 
-    // Stripe references removed
+    // Removed Stripe-related variables and payment options
   </script>
 </body>
 </html>
