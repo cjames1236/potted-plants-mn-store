@@ -75,7 +75,7 @@
     };
 
     // Relative path to logo PNG (UPDATE THIS WITH YOUR NEW LOGO NAME)
-    const LOGO_URL = "/assets/potted-kitchen-logo.png";
+    const LOGO_URL = "/assets/potted-kitchen-logo.svg";
 
     const CASH_APP_URL = "https://cash.app/$CurtisGieseke";
 
@@ -376,6 +376,16 @@
     </div>
   </div>
 
+  <!-- SVG LOGO -->
+  <svg id="logo-svg" style="display:none;" width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#2E7D32"/>
+    <path d="M30 50 Q 50 20, 70 50 L 60 60 Q 50 70, 40 60 Z" fill="white"/>
+    <path d="M50 40 L 55 35 L 60 40 L 55 45 Z" fill="white"/>
+    <text x="25" y="75" font-size="12" fill="white">Potted Kitchen</text>
+    <text x="25" y="85" font-size="8" fill="red">#GourmetEdibles</text>
+    <text x="25" y="95" font-size="8" fill="white">"If you can cook it, you can infuse it!"</text>
+  </svg>
+
   <!-- MAIN JS (vanilla) -->
   <script>
     const $ = s => document.querySelector(s);
@@ -385,7 +395,10 @@
     $('#logo').onerror = () => {
       $('#logo').src = 'https://placehold.co/100x100/png?text=Logo';
     };
-    $('#logo').src = LOGO_URL;
+    const svgLogo = document.getElementById('logo-svg');
+    const svgBlob = new Blob([new XMLSerializer().serializeToString(svgLogo)], {type: 'image/svg+xml'});
+    const logoUrl = URL.createObjectURL(svgBlob);
+    $('#logo').src = logoUrl;
     $('#brand-name').textContent = BRAND.name;
     $('#tagline').textContent = BRAND.tagline;
     $('#year').textContent = new Date().getFullYear();
