@@ -74,8 +74,8 @@
       facebookProfile: "https://www.facebook.com/potted.plants.2025"
     };
 
-    // Relative path to logo SVG
-    const LOGO_URL = "/assets/potted-kitchen-logo.svg";
+    // Base64-encoded logo (embedded directly)
+    const LOGO_BASE64 = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMyRTdEMzIiLz48cGF0aCBkPSJNMzAgNTAgUTUwIDIwLDcwIDUwIEwgNjAgNjAgUTUwIDcwLDQwIDYwIFoiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTUwIDQwIEwgNTUgMzUgTCA2MCA0MCBMIDU1IDQ1IFoiIGZpbGw9IndoaXRlIi8+PHRleHQgeD0iMjUiIHk9Ijc1IiBmb250LXNpemU9IjEyIiBmaWxsPSJ3aGl0ZSI+UG90dGVkIEtpdGNoZW48L3RleHQ+PHRleHQgeD0iMjUiIHk9Ijg1IiBmb250LXNpemU9IjgiIGZpbGw9InJlZCI+I0dvdXJtZXRFZGlibGVzPC90ZXh0Pjx0ZXh0IHg9IjI1IiB5PSI5NSIgZm9udC1zaXplPSI4IiBmaWxsPSJ3aGl0ZSI+IklmIHlvdSBjYW4gY29vayBpdCwgeW91IGNhbiBpbmZ1c2UgaXQhIjwvdGV4dD48L3N2Zz4=";
 
     const CASH_APP_URL = "https://cash.app/$CurtisGieseke";
 
@@ -106,7 +106,7 @@
   <nav class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b">
     <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-2 font-semibold text-lg">
-        <img id="logo" class="h-9 w-auto object-contain rounded-sm" alt="Potted Kitchen logo" aria-label="Potted Kitchen logo">
+        <img id="logo" class="h-9 w-auto object-contain rounded-sm" src="<%= LOGO_BASE64 %>" alt="Potted Kitchen logo" aria-label="Potted Kitchen logo">
         <span class="text-emerald-800" id="brand-name"></span>
       </div>
       <div class="flex items-center gap-4">
@@ -386,7 +386,7 @@
       $('#logo').onerror = () => {
         $('#logo').src = 'https://placehold.co/100x100/png?text=Logo';
       };
-      $('#logo').src = LOGO_URL;
+      $('#logo').src = LOGO_BASE64; // Use base64-encoded logo
       $('#brand-name').textContent = BRAND.name;
       $('#tagline').textContent = BRAND.tagline;
       $('#year').textContent = new Date().getFullYear();
