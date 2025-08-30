@@ -74,7 +74,7 @@
       facebookProfile: "https://www.facebook.com/potted.plants.2025"
     };
 
-    // Relative path to logo PNG (UPDATE THIS WITH YOUR NEW LOGO NAME)
+    // Relative path to logo SVG
     const LOGO_URL = "/assets/potted-kitchen-logo.svg";
 
     const CASH_APP_URL = "https://cash.app/$CurtisGieseke";
@@ -376,341 +376,330 @@
     </div>
   </div>
 
-  <!-- SVG LOGO -->
-  <svg id="logo-svg" style="display:none;" width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <rect width="100" height="100" fill="#2E7D32"/>
-    <path d="M30 50 Q 50 20, 70 50 L 60 60 Q 50 70, 40 60 Z" fill="white"/>
-    <path d="M50 40 L 55 35 L 60 40 L 55 45 Z" fill="white"/>
-    <text x="25" y="75" font-size="12" fill="white">Potted Kitchen</text>
-    <text x="25" y="85" font-size="8" fill="red">#GourmetEdibles</text>
-    <text x="25" y="95" font-size="8" fill="white">"If you can cook it, you can infuse it!"</text>
-  </svg>
-
   <!-- MAIN JS (vanilla) -->
   <script>
     const $ = s => document.querySelector(s);
     const fmt = n => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
-    // Init text/logo
-    $('#logo').onerror = () => {
-      $('#logo').src = 'https://placehold.co/100x100/png?text=Logo';
-    };
-    const svgLogo = document.getElementById('logo-svg');
-    const svgBlob = new Blob([new XMLSerializer().serializeToString(svgLogo)], {type: 'image/svg+xml'});
-    const logoUrl = URL.createObjectURL(svgBlob);
-    $('#logo').src = logoUrl;
-    $('#brand-name').textContent = BRAND.name;
-    $('#tagline').textContent = BRAND.tagline;
-    $('#year').textContent = new Date().getFullYear();
-    $('#coa-batch-section').textContent = PRODUCT.batch;
-
-    // Product text
-    $('#p-name').textContent = PRODUCT.name;
-    $('#p-desc').textContent = PRODUCT.desc;
-    $('#p-serve').textContent = `${PRODUCT.strengthMg} mg Δ9-THC per gummy × ${PRODUCT.count} gummies = ${PRODUCT.strengthMg * PRODUCT.count} mg total`;
-    $('#p-batch').textContent = PRODUCT.batch;
-    $('#p-price').textContent = fmt(PRODUCT.price);
-    $('#p-strength').textContent = PRODUCT.strengthMg.toString();
-    $('#p-total').textContent = (PRODUCT.strengthMg * PRODUCT.count).toString();
-    $('#p-batch2').textContent = PRODUCT.batch;
-    $('#pay-cashapp').href = CASH_APP_URL;
-
-    $('#coa-batch').textContent = PRODUCT.batch;
-    $('#coa-link').href = PRODUCT.coaUrl;
-    $('#open-coa-hero').onclick = () => toggleCOA(true);
-    $('#open-coa-card').onclick = () => toggleCOA(true);
-    $('#open-coa-section').onclick = () => toggleCOA(true);
-
-    // QR code
-    if (window.QRCode) {
-      QRCode.toCanvas(document.getElementById('coa-qr'), PRODUCT.coaUrl, { width: 128, margin: 1 }, () => {});
-    }
-
-    // State select (MN only)
-    const states = [["", "Select state…"], ["MN", "Minnesota"], ["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"], ["CA", "California"], ["CO", "Colorado"], ["CT", "Connecticut"], ["DE", "Delaware"], ["FL", "Florida"], ["GA", "Georgia"], ["HI", "Hawaii"], ["ID", "Idaho"], ["IL", "Illinois"], ["IN", "Indiana"], ["IA", "Iowa"], ["KS", "Kansas"], ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"], ["MD", "Maryland"], ["MA", "Massachusetts"], ["MI", "Michigan"], ["MS", "Mississippi"], ["MO", "Missouri"], ["MT", "Montana"], ["NE", "Nebraska"], ["NV", "Nevada"], ["NH", "New Hampshire"], ["NJ", "New Jersey"], ["NM", "New Mexico"], ["NY", "New York"], ["NC", "North Carolina"], ["ND", "North Dakota"], ["OH", "Ohio"], ["OK", "Oklahoma"], ["OR", "Oregon"], ["PA", "Pennsylvania"], ["RI", "Rhode Island"], ["SC", "South Carolina"], ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"], ["UT", "Utah"], ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"], ["WV", "West Virginia"], ["WI", "Wisconsin"], ["WY", "Wyoming"], ["DC", "District of Columbia"]];
-    const sel = $('#state');
-    states.forEach(([v, t]) => {
-      const o = document.createElement('option');
-      o.value = v;
-      o.textContent = t;
-      sel.appendChild(o);
-    });
-    let selectedState = "";
-    sel.addEventListener('change', () => {
-      selectedState = sel.value;
-      const msg = $('#state-msg');
-      if (!selectedState) {
-        msg.textContent = "";
-        $('#mn-note').classList.add('hidden');
-        return;
-      }
-      if (selectedState !== "MN") {
-        msg.textContent = "⚠️ We currently ship only within Minnesota.";
-        msg.className = "text-amber-700 text-sm";
-        $('#mn-note').classList.remove('hidden');
-      } else {
-        msg.textContent = "✔ Minnesota shipping available.";
-        msg.className = "text-green-700 text-sm";
-        $('#mn-note').classList.add('hidden');
-      }
-    });
-
-    // Debounce function to prevent rapid cart toggling
-    function debounce(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+    document.addEventListener('DOMContentLoaded', () => {
+      // Init text/logo
+      $('#logo').onerror = () => {
+        $('#logo').src = 'https://placehold.co/100x100/png?text=Logo';
       };
-    }
+      $('#logo').src = LOGO_URL;
+      $('#brand-name').textContent = BRAND.name;
+      $('#tagline').textContent = BRAND.tagline;
+      $('#year').textContent = new Date().getFullYear();
+      $('#coa-batch-section').textContent = PRODUCT.batch;
 
-    // Cart with persistence and tax calculation
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    let discountCode = localStorage.getItem('discountCode') || '';
-    function saveCart() {
-      localStorage.setItem('cart', JSON.stringify(cart));
-      localStorage.setItem('discountCode', discountCode);
-    }
-    const openCart = debounce(() => {
-      $('#drawer').style.transform = 'translateX(0)';
-      document.body.classList.add('no-scroll');
-    }, 200);
-    const closeCart = debounce(() => {
-      $('#drawer').style.transform = 'translateX(100%)';
-      document.body.classList.remove('no-scroll');
-    }, 200);
-    function renderCart() {
-      $('#cart-count').textContent = cart.reduce((s, i) => s + i.qty, 0);
-      const wrap = $('#cart-items');
-      wrap.innerHTML = '';
-      let subtotal = 0;
-      cart.forEach(item => {
-        subtotal += PRODUCT.price * item.qty;
-        const row = document.createElement('div');
-        row.className = 'card p-3 flex gap-3';
-        const imgURL = window.currentHeroURL || PRODUCT.imageFallback;
-        row.innerHTML = `
-          <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${imgURL}');background-size:cover;background-position:center" aria-label="Product image" onerror="this.style.backgroundImage='url(${PRODUCT.imageFallback})'"></div>
-          <div class="flex-1">
-            <p class="font-medium">${PRODUCT.name}</p>
-            <p class="text-xs text-neutral-600">MN-compliant</p>
-            <div class="mt-2 flex items-center gap-2">
-              <button class="btn btn-ghost" data-delta="-1" aria-label="Decrease quantity">−</button>
-              <span>${item.qty}</span>
-              <button class="btn btn-ghost" data-delta="+1" aria-label="Increase quantity">+</button>
+      // Product text
+      $('#p-name').textContent = PRODUCT.name;
+      $('#p-desc').textContent = PRODUCT.desc;
+      $('#p-serve').textContent = `${PRODUCT.strengthMg} mg Δ9-THC per gummy × ${PRODUCT.count} gummies = ${PRODUCT.strengthMg * PRODUCT.count} mg total`;
+      $('#p-batch').textContent = PRODUCT.batch;
+      $('#p-price').textContent = fmt(PRODUCT.price);
+      $('#p-strength').textContent = PRODUCT.strengthMg.toString();
+      $('#p-total').textContent = (PRODUCT.strengthMg * PRODUCT.count).toString();
+      $('#p-batch2').textContent = PRODUCT.batch;
+      $('#pay-cashapp').href = CASH_APP_URL;
+
+      $('#coa-batch').textContent = PRODUCT.batch;
+      $('#coa-link').href = PRODUCT.coaUrl;
+      $('#open-coa-hero').onclick = () => toggleCOA(true);
+      $('#open-coa-card').onclick = () => toggleCOA(true);
+      $('#open-coa-section').onclick = () => toggleCOA(true);
+
+      // QR code
+      if (window.QRCode) {
+        QRCode.toCanvas(document.getElementById('coa-qr'), PRODUCT.coaUrl, { width: 128, margin: 1 }, () => {});
+      }
+
+      // State select (MN only)
+      const states = [["", "Select state…"], ["MN", "Minnesota"], ["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"], ["CA", "California"], ["CO", "Colorado"], ["CT", "Connecticut"], ["DE", "Delaware"], ["FL", "Florida"], ["GA", "Georgia"], ["HI", "Hawaii"], ["ID", "Idaho"], ["IL", "Illinois"], ["IN", "Indiana"], ["IA", "Iowa"], ["KS", "Kansas"], ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"], ["MD", "Maryland"], ["MA", "Massachusetts"], ["MI", "Michigan"], ["MS", "Mississippi"], ["MO", "Missouri"], ["MT", "Montana"], ["NE", "Nebraska"], ["NV", "Nevada"], ["NH", "New Hampshire"], ["NJ", "New Jersey"], ["NM", "New Mexico"], ["NY", "New York"], ["NC", "North Carolina"], ["ND", "North Dakota"], ["OH", "Ohio"], ["OK", "Oklahoma"], ["OR", "Oregon"], ["PA", "Pennsylvania"], ["RI", "Rhode Island"], ["SC", "South Carolina"], ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"], ["UT", "Utah"], ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"], ["WV", "West Virginia"], ["WI", "Wisconsin"], ["WY", "Wyoming"], ["DC", "District of Columbia"]];
+      const sel = $('#state');
+      states.forEach(([v, t]) => {
+        const o = document.createElement('option');
+        o.value = v;
+        o.textContent = t;
+        sel.appendChild(o);
+      });
+      let selectedState = "";
+      sel.addEventListener('change', () => {
+        selectedState = sel.value;
+        const msg = $('#state-msg');
+        if (!selectedState) {
+          msg.textContent = "";
+          $('#mn-note').classList.add('hidden');
+          return;
+        }
+        if (selectedState !== "MN") {
+          msg.textContent = "⚠️ We currently ship only within Minnesota.";
+          msg.className = "text-amber-700 text-sm";
+          $('#mn-note').classList.remove('hidden');
+        } else {
+          msg.textContent = "✔ Minnesota shipping available.";
+          msg.className = "text-green-700 text-sm";
+          $('#mn-note').classList.add('hidden');
+        }
+      });
+
+      // Debounce function to prevent rapid cart toggling
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      // Cart with persistence and tax calculation
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      let discountCode = localStorage.getItem('discountCode') || '';
+      function saveCart() {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        localStorage.setItem('discountCode', discountCode);
+      }
+      const openCart = debounce(() => {
+        $('#drawer').style.transform = 'translateX(0)';
+        document.body.classList.add('no-scroll');
+      }, 200);
+      const closeCart = debounce(() => {
+        $('#drawer').style.transform = 'translateX(100%)';
+        document.body.classList.remove('no-scroll');
+      }, 200);
+      function renderCart() {
+        $('#cart-count').textContent = cart.reduce((s, i) => s + i.qty, 0);
+        const wrap = $('#cart-items');
+        wrap.innerHTML = '';
+        let subtotal = 0;
+        cart.forEach(item => {
+          subtotal += PRODUCT.price * item.qty;
+          const row = document.createElement('div');
+          row.className = 'card p-3 flex gap-3';
+          const imgURL = window.currentHeroURL || PRODUCT.imageFallback;
+          row.innerHTML = `
+            <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${imgURL}');background-size:cover;background-position:center" aria-label="Product image" onerror="this.style.backgroundImage='url(${PRODUCT.imageFallback})'"></div>
+            <div class="flex-1">
+              <p class="font-medium">${PRODUCT.name}</p>
+              <p class="text-xs text-neutral-600">MN-compliant</p>
+              <div class="mt-2 flex items-center gap-2">
+                <button class="btn btn-ghost" data-delta="-1" aria-label="Decrease quantity">−</button>
+                <span>${item.qty}</span>
+                <button class="btn btn-ghost" data-delta="+1" aria-label="Increase quantity">+</button>
+              </div>
             </div>
-          </div>
-          <div class="text-right">
-            <div class="font-semibold">${fmt(PRODUCT.price * item.qty)}</div>
-            <button class="text-xs text-neutral-500 hover:underline" data-remove aria-label="Remove item">Remove</button>
-          </div>`;
-        row.querySelector('[data-delta="-1"]').onclick = () => {
-          item.qty = Math.max(1, item.qty - 1);
-          saveCart();
-          renderCart();
-        };
-        row.querySelector('[data-delta="+1"]').onclick = () => {
-          item.qty = item.qty + 1;
-          saveCart();
-          renderCart();
-        };
-        row.querySelector('[data-remove]').onclick = () => {
-          cart.splice(cart.indexOf(item), 1);
-          saveCart();
-          renderCart();
-        };
-        wrap.appendChild(row);
-      });
-      let discount = 0;
-      if (discountCode === DISCOUNT_CODE && subtotal > DISCOUNT_THRESHOLD) {
-        discount = subtotal * DISCOUNT_RATE;
+            <div class="text-right">
+              <div class="font-semibold">${fmt(PRODUCT.price * item.qty)}</div>
+              <button class="text-xs text-neutral-500 hover:underline" data-remove aria-label="Remove item">Remove</button>
+            </div>`;
+          row.querySelector('[data-delta="-1"]').onclick = () => {
+            item.qty = Math.max(1, item.qty - 1);
+            saveCart();
+            renderCart();
+          };
+          row.querySelector('[data-delta="+1"]').onclick = () => {
+            item.qty = item.qty + 1;
+            saveCart();
+            renderCart();
+          };
+          row.querySelector('[data-remove]').onclick = () => {
+            cart.splice(cart.indexOf(item), 1);
+            saveCart();
+            renderCart();
+          };
+          wrap.appendChild(row);
+        });
+        let discount = 0;
+        if (discountCode === DISCOUNT_CODE && subtotal > DISCOUNT_THRESHOLD) {
+          discount = subtotal * DISCOUNT_RATE;
+        }
+        const taxableAmount = subtotal - discount;
+        const cannabisTax = taxableAmount * CANNABIS_TAX_RATE;
+        const stateTax = taxableAmount * STATE_SALES_TAX_RATE;
+        const total = taxableAmount + cannabisTax + stateTax;
+        $('#subtotal').textContent = fmt(subtotal);
+        $('#discount').textContent = fmt(discount);
+        $('#cannabis-tax').textContent = fmt(cannabisTax);
+        $('#state-tax').textContent = fmt(stateTax);
+        $('#total').textContent = fmt(total);
+        $('#discount-code').value = discountCode;
+        saveCart();
       }
-      const taxableAmount = subtotal - discount;
-      const cannabisTax = taxableAmount * CANNABIS_TAX_RATE;
-      const stateTax = taxableAmount * STATE_SALES_TAX_RATE;
-      const total = taxableAmount + cannabisTax + stateTax;
-      $('#subtotal').textContent = fmt(subtotal);
-      $('#discount').textContent = fmt(discount);
-      $('#cannabis-tax').textContent = fmt(cannabisTax);
-      $('#state-tax').textContent = fmt(stateTax);
-      $('#total').textContent = fmt(total);
-      $('#discount-code').value = discountCode;
-      saveCart();
-    }
 
-    // Discount code application
-    $('#apply-discount').addEventListener('click', () => {
-      discountCode = $('#discount-code').value.trim();
-      const error = $('#discount-error');
-      if (discountCode === DISCOUNT_CODE && cart.reduce((s, i) => s + PRODUCT.price * i.qty, 0) > DISCOUNT_THRESHOLD) {
-        error.classList.add('hidden');
-      } else {
-        error.classList.remove('hidden');
-        discountCode = '';
-      }
-      saveCart();
-      renderCart();
-    });
-
-    document.querySelector('a[href="#cart"]').addEventListener('click', (e) => {
-      e.preventDefault();
-      openCart();
-    });
-    document.getElementById('add').addEventListener('click', () => {
-      const f = cart.find(i => i.id === PRODUCT.id);
-      if (f) f.qty += 1;
-      else cart.push({ id: PRODUCT.id, qty: 1 });
-      saveCart();
-      renderCart();
-      openCart();
-    });
-
-    // Cash App checkout button
-    document.getElementById('checkout').addEventListener('click', () => {
-      if (!cart.length) return;
-      if (sel.value !== "MN") {
-        alert("We ship within Minnesota only. Select MN to proceed.");
-        return;
-      }
-      const subtotal = cart.reduce((s, i) => s + PRODUCT.price * i.qty, 0);
-      let discount = 0;
-      if (discountCode === DISCOUNT_CODE && subtotal > DISCOUNT_THRESHOLD) {
-        discount = subtotal * DISCOUNT_RATE;
-      }
-      const taxableAmount = subtotal - discount;
-      const cannabisTax = taxableAmount * CANNABIS_TAX_RATE;
-      const stateTax = taxableAmount * STATE_SALES_TAX_RATE;
-      const total = taxableAmount + cannabisTax + stateTax;
-      const orderId = "PK-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-      const flavor = $('#flavor').value;
-      const note = `Order ${orderId} — ${PRODUCT.name} (${flavor}) x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Subtotal ${fmt(subtotal)} — Discount ${fmt(discount)} — Cannabis Tax (15%) ${fmt(cannabisTax)} — State Sales Tax (6.875%) ${fmt(stateTax)} — Total ${fmt(total)} — Ship: MN`;
-      try {
-        navigator.clipboard?.writeText(note);
-      } catch {}
-      alert(`Copy this into your Cash App note before paying:\n\n${note}`);
-      window.open(CASH_APP_URL, "_blank");
-    });
-
-    // Pay with Cash App button
-    document.getElementById('pay-cashapp').addEventListener('click', (e) => {
-      e.preventDefault();
-      if (!cart.length) {
-        cart.push({ id: PRODUCT.id, qty: 1 });
+      // Discount code application
+      $('#apply-discount').addEventListener('click', () => {
+        discountCode = $('#discount-code').value.trim();
+        const error = $('#discount-error');
+        if (discountCode === DISCOUNT_CODE && cart.reduce((s, i) => s + PRODUCT.price * i.qty, 0) > DISCOUNT_THRESHOLD) {
+          error.classList.add('hidden');
+        } else {
+          error.classList.remove('hidden');
+          discountCode = '';
+        }
         saveCart();
         renderCart();
-      }
-      document.getElementById('checkout').click();
-    });
+      });
 
-    // COA modal + Age gate
-    async function toggleCOA(show = true) {
-      const c = $('#coa');
-      c.style.display = show ? 'flex' : 'none';
-      if (show) {
+      document.querySelector('a[href="#cart"]').addEventListener('click', (e) => {
+        e.preventDefault();
+        openCart();
+      });
+      document.getElementById('add').addEventListener('click', () => {
+        const f = cart.find(i => i.id === PRODUCT.id);
+        if (f) f.qty += 1;
+        else cart.push({ id: PRODUCT.id, qty: 1 });
+        saveCart();
+        renderCart();
+        openCart();
+      });
+
+      // Cash App checkout button
+      document.getElementById('checkout').addEventListener('click', () => {
+        if (!cart.length) return;
+        if (sel.value !== "MN") {
+          alert("We ship within Minnesota only. Select MN to proceed.");
+          return;
+        }
+        const subtotal = cart.reduce((s, i) => s + PRODUCT.price * i.qty, 0);
+        let discount = 0;
+        if (discountCode === DISCOUNT_CODE && subtotal > DISCOUNT_THRESHOLD) {
+          discount = subtotal * DISCOUNT_RATE;
+        }
+        const taxableAmount = subtotal - discount;
+        const cannabisTax = taxableAmount * CANNABIS_TAX_RATE;
+        const stateTax = taxableAmount * STATE_SALES_TAX_RATE;
+        const total = taxableAmount + cannabisTax + stateTax;
+        const orderId = "PK-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+        const flavor = $('#flavor').value;
+        const note = `Order ${orderId} — ${PRODUCT.name} (${flavor}) x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Subtotal ${fmt(subtotal)} — Discount ${fmt(discount)} — Cannabis Tax (15%) ${fmt(cannabisTax)} — State Sales Tax (6.875%) ${fmt(stateTax)} — Total ${fmt(total)} — Ship: MN`;
         try {
-          const script = document.createElement('script');
-          script.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
-          script.onload = async () => {
-            const pdf = await pdfjsLib.getDocument({ url: PRODUCT.coaUrl }).promise;
-            const page = await pdf.getPage(1);
-            const viewport = page.getViewport({ scale: 1.8 });
-            const canvas = $('#coa-canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            await page.render({ canvasContext: ctx, viewport }).promise;
-            $('#coa-error').classList.add('hidden');
-          };
-          script.onerror = () => {
-            $('#coa-error').classList.remove('hidden');
-          };
-          document.head.appendChild(script);
-        } catch {
-          $('#coa-error').classList.remove('hidden');
-        }
-      }
-    }
-    function showAgeGate() {
-      const g = $('#age');
-      g.style.display = 'flex';
-    }
-    function verifyAge() {
-      localStorage.setItem('hemp_age_verified', JSON.stringify({ verified: true, timestamp: Date.now() }));
-      $('#age').style.display = 'none';
-    }
-    window.verifyAge = verifyAge;
-    window.closeCart = closeCart;
-    window.toggleCOA = toggleCOA;
-    const ageData = JSON.parse(localStorage.getItem('hemp_age_verified') || '{}');
-    if (!ageData.verified || (Date.now() - ageData.timestamp > 30 * 24 * 60 * 60 * 1000)) showAgeGate();
-
-    // HERO IMAGE PIPELINE
-    (async function setHeroImage() {
-      const hero = $('#hero-img');
-      // Relative path to gummies-hero.png (UPDATE THIS WITH YOUR NEW HERO IMAGE NAME)
-      const imageUrl = "/assets/gummies-hero.png";
-      function setBG(url) {
-        hero.style.backgroundImage = `url('${url}')`;
-        hero.style.backgroundSize = 'cover';
-        hero.style.backgroundPosition = 'center';
-        window.currentHeroURL = url;
-      }
-      const success = await new Promise(res => {
-        const i = new Image();
-        i.onload = () => res(true);
-        i.onerror = () => res(false);
-        i.src = imageUrl;
+          navigator.clipboard?.writeText(note);
+        } catch {}
+        alert(`Copy this into your Cash App note before paying:\n\n${note}`);
+        window.open(CASH_APP_URL, "_blank");
       });
-      if (success) {
-        setBG(imageUrl);
-      } else {
-        setBG(PRODUCT.imageFallback);
-        hero.innerHTML = '<p class="text-sm text-neutral-600 text-center mt-4">Image unavailable</p>';
-      }
-    })();
 
-    // SMART BUY LINKS
-    (function smartBuyLinks() {
-      try {
-        const qs = new URLSearchParams(location.search);
-        const buy = qs.get("buy");
-        if (!buy || buy !== PRODUCT.id) return;
-
-        const qty = Math.max(1, parseInt(qs.get("qty") || "1", 10));
-        const desiredState = qs.get("state");
-        const open = qs.get("open");
-        const checkout = qs.get("checkout");
-
-        if (desiredState) {
-          sel.value = desiredState;
-          sel.dispatchEvent(new Event("change"));
+      // Pay with Cash App button
+      document.getElementById('pay-cashapp').addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!cart.length) {
+          cart.push({ id: PRODUCT.id, qty: 1 });
+          saveCart();
+          renderCart();
         }
+        document.getElementById('checkout').click();
+      });
 
-        const existing = cart.find(i => i.id === PRODUCT.id);
-        if (existing) existing.qty += qty;
-        else cart.push({ id: PRODUCT.id, qty });
-        saveCart();
-        renderCart();
-
-        if (open === "cart") openCart();
-
-        if (checkout === "cashapp") {
-          if (sel.value === "MN") document.getElementById("checkout").click();
-          else {
-            const msg = document.getElementById("state-msg");
-            if (msg) {
-              msg.textContent = "Select Minnesota to proceed to checkout.";
-              msg.className = "text-amber-700 text-sm";
-            }
-            openCart();
+      // COA modal + Age gate
+      async function toggleCOA(show = true) {
+        const c = $('#coa');
+        c.style.display = show ? 'flex' : 'none';
+        if (show) {
+          try {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+            script.onload = async () => {
+              const pdf = await pdfjsLib.getDocument({ url: PRODUCT.coaUrl }).promise;
+              const page = await pdf.getPage(1);
+              const viewport = page.getViewport({ scale: 1.8 });
+              const canvas = $('#coa-canvas');
+              const ctx = canvas.getContext('2d');
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              await page.render({ canvasContext: ctx, viewport }).promise;
+              $('#coa-error').classList.add('hidden');
+            };
+            script.onerror = () => {
+              $('#coa-error').classList.remove('hidden');
+            };
+            document.head.appendChild(script);
+          } catch {
+            $('#coa-error').classList.remove('hidden');
           }
         }
-      } catch {/* ignore */}
-    })();
+      }
+      function showAgeGate() {
+        const g = $('#age');
+        g.style.display = 'flex';
+      }
+      function verifyAge() {
+        localStorage.setItem('hemp_age_verified', JSON.stringify({ verified: true, timestamp: Date.now() }));
+        $('#age').style.display = 'none';
+      }
+      window.verifyAge = verifyAge;
+      window.closeCart = closeCart;
+      window.toggleCOA = toggleCOA;
+      const ageData = JSON.parse(localStorage.getItem('hemp_age_verified') || '{}');
+      if (!ageData.verified || (Date.now() - ageData.timestamp > 30 * 24 * 60 * 60 * 1000)) showAgeGate();
+
+      // HERO IMAGE PIPELINE
+      (async function setHeroImage() {
+        const hero = $('#hero-img');
+        // Relative path to gummies-hero.png (UPDATE THIS WITH YOUR NEW HERO IMAGE NAME)
+        const imageUrl = "/assets/gummies-hero.png";
+        function setBG(url) {
+          hero.style.backgroundImage = `url('${url}')`;
+          hero.style.backgroundSize = 'cover';
+          hero.style.backgroundPosition = 'center';
+          window.currentHeroURL = url;
+        }
+        const success = await new Promise(res => {
+          const i = new Image();
+          i.onload = () => res(true);
+          i.onerror = () => res(false);
+          i.src = imageUrl;
+        });
+        if (success) {
+          setBG(imageUrl);
+        } else {
+          setBG(PRODUCT.imageFallback);
+          hero.innerHTML = '<p class="text-sm text-neutral-600 text-center mt-4">Image unavailable</p>';
+        }
+      })();
+
+      // SMART BUY LINKS
+      (function smartBuyLinks() {
+        try {
+          const qs = new URLSearchParams(location.search);
+          const buy = qs.get("buy");
+          if (!buy || buy !== PRODUCT.id) return;
+
+          const qty = Math.max(1, parseInt(qs.get("qty") || "1", 10));
+          const desiredState = qs.get("state");
+          const open = qs.get("open");
+          const checkout = qs.get("checkout");
+
+          if (desiredState) {
+            sel.value = desiredState;
+            sel.dispatchEvent(new Event("change"));
+          }
+
+          const existing = cart.find(i => i.id === PRODUCT.id);
+          if (existing) existing.qty += qty;
+          else cart.push({ id: PRODUCT.id, qty });
+          saveCart();
+          renderCart();
+
+          if (open === "cart") openCart();
+
+          if (checkout === "cashapp") {
+            if (sel.value === "MN") document.getElementById("checkout").click();
+            else {
+              const msg = document.getElementById("state-msg");
+              if (msg) {
+                msg.textContent = "Select Minnesota to proceed to checkout.";
+                msg.className = "text-amber-700 text-sm";
+              }
+              openCart();
+            }
+          }
+        } catch {/* ignore */}
+      })();
+    });
   </script>
 </body>
 </html>
