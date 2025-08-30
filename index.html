@@ -9,11 +9,11 @@
   <!-- Open Graph / Share -->
   <meta property="og:title" content="Potted Kitchen — MN-Compliant Hemp Gummies" />
   <meta property="og:description" content="Shop Minnesota-compliant Δ9 THC gummies with ≤5mg per serving. Third-party tested, 21+ only, MN shipping." />
-  <meta property="og:image" content="/assets/gurmies-hero.png" />
+  <meta property="og:image" content="/assets/gurmies-hero.png?v=5" />
   <meta property="og:url" content="https://potted-plants-mn-store.vercel.app/" />
   <meta name="keywords" content="Minnesota hemp gummies, Δ9 THC edibles, MN-compliant THC, Potted Kitchen, hemp gummies MN" />
 
-  <!-- Favicon (optional) -->
+  <!-- Favicon -->
   <link rel="icon" href="/assets/potted-kitchen-logo.svg" type="image/svg+xml">
 
   <!-- Tailwind -->
@@ -62,11 +62,12 @@
         "availability": "https://schema.org/InStock",
         "url": "https://potted-plants-mn-store.vercel.app/"
       },
-      "image": "/assets/gurmies-hero.png"
+      "image": "/assets/gurmies-hero.png?v=5"
     }
   </script>
 </head>
 <body class="min-h-screen bg-neutral-50 text-neutral-900">
+
   <script>
     /* ---------- CONFIG ---------- */
     const BRAND = {
@@ -92,16 +93,16 @@
       coaUrl: "https://1drv.ms/b/c/dc5c1fb05bd2de17/ERfe0luwH1wggNytEAAAAAABBc6xNatFTT68cmIluAhg9A?e=HJCaQQ"
     };
 
-    // Tax rates (Minnesota)
-    const CANNABIS_TAX_RATE = 0.15;      // 15%
-    const STATE_SALES_TAX_RATE = 0.06875; // 6.875%
-    const TOTAL_TAX_RATE = CANNABIS_TAX_RATE + STATE_SALES_TAX_RATE;
+    // Taxes (Minnesota)
+    const CANNABIS_TAX_RATE = 0.15;
+    const STATE_SALES_TAX_RATE = 0.06875;
     const DISCOUNT_CODE = "POTTED10";
     const DISCOUNT_THRESHOLD = 50;
     const DISCOUNT_RATE = 0.1;
 
-    // Expose current hero URL for cart thumbnails
-    window.currentHeroURL = "/assets/gurmies-hero.png";
+    // Use your exact hero image path (+ cache bust)
+    const HERO_URL = "/assets/gurmies-hero.png?v=5";
+    window.currentHeroURL = HERO_URL; // used for cart thumbnails
   </script>
 
   <!-- NAV -->
@@ -212,8 +213,8 @@
         <p class="text-sm text-neutral-600" id="p-desc"></p>
         <ul class="mt-2 text-sm text-neutral-600 list-disc pl-5">
           <li>Locally crafted in Minnesota, OCM-registered</li>
-          <li>Delicious mixed fruit flavors for a delightful experience</li>
-          <li>Perfect for relaxation, 2.2mg Δ9-THC per gummy</li>
+          <li>Delicious mixed fruit flavors</li>
+          <li>2.2mg Δ9-THC per gummy</li>
           <li>Third-party tested for safety and potency</li>
         </ul>
         <p class="mt-2 text-sm"><strong id="p-serve"></strong></p>
@@ -354,8 +355,8 @@
     </div>
   </aside>
 
-  <!-- COA MODAL -->
-  <div id="coa" class="fixed inset-0 hidden items-center justify-center bg-black/50 p-4 z-50">
+  <!-- COA MODAL (renamed to avoid duplicate IDs) -->
+  <div id="coa-modal" class="fixed inset-0 hidden items-center justify-center bg-black/50 p-4 z-50">
     <div class="max-w-lg w-full card p-6">
       <div class="flex items-center justify-between">
         <h4 class="font-semibold">Certificate of Analysis</h4>
@@ -387,7 +388,7 @@
     const fmt = n => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Init text/logo
+      // Init text
       $('#brand-name').textContent = BRAND.name;
       $('#tagline').textContent = BRAND.tagline;
       $('#year').textContent = new Date().getFullYear();
@@ -415,13 +416,10 @@
         QRCode.toCanvas(document.getElementById('coa-qr'), PRODUCT.coaUrl, { width: 128, margin: 1 }, () => {});
       }
 
-      // State select (MN only)
-      const states = [["", "Select state…"], ["MN", "Minnesota"], ["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"], ["CA", "California"], ["CO", "Colorado"], ["CT", "Connecticut"], ["DE", "Delaware"], ["FL", "Florida"], ["GA", "Georgia"], ["HI", "Hawaii"], ["ID", "Idaho"], ["IL", "Illinois"], ["IN", "Indiana"], ["IA", "Iowa"], ["KS", "Kansas"], ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"], ["MD", "Maryland"], ["MA", "Massachusetts"], ["MI", "Michigan"], ["MS", "Mississippi"], ["MO", "Missouri"], ["MT", "Montana"], ["NE", "Nebraska"], ["NV", "Nevada"], ["NH", "New Hampshire"], ["NJ", "New Jersey"], ["NM", "New Mexico"], ["NY", "New York"], ["NC", "North Carolina"], ["ND", "North Dakota"], ["OH", "Ohio"], ["OK", "Oklahoma"], ["OR", "Oregon"], ["PA", "Pennsylvania"], ["RI", "Rhode Island"], ["SC", "South Carolina"], ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"], ["UT", "Utah"], ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"], ["WV", "West Virginia"], ["WI", "Wisconsin"], ["WY", "Wyoming"], ["DC", "District of Columbia"]];
+      // State select (MN focus)
+      const states = [["", "Select state…"], ["MN", "Minnesota"], ["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"],["DC","District of Columbia"]];
       const sel = $('#state');
-      states.forEach(([v, t]) => {
-        const o = document.createElement('option');
-        o.value = v; o.textContent = t; sel.appendChild(o);
-      });
+      states.forEach(([v, t]) => { const o=document.createElement('option'); o.value=v; o.textContent=t; sel.appendChild(o); });
       sel.addEventListener('change', () => {
         const msg = $('#state-msg');
         if (!sel.value) { msg.textContent = ""; $('#mn-note').classList.add('hidden'); return; }
@@ -435,9 +433,7 @@
       });
 
       // Debounce helpers
-      function debounce(func, wait) {
-        let timeout; return function(...args){ clearTimeout(timeout); timeout=setTimeout(()=>func(...args), wait); };
-      }
+      function debounce(func, wait){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>func(...a),wait); }; }
 
       // Cart with persistence and tax calculation
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -456,7 +452,7 @@
           subtotal += PRODUCT.price * item.qty;
           const row = document.createElement('div');
           row.className = 'card p-3 flex gap-3';
-          const imgURL = window.currentHeroURL || "/assets/gurmies-hero.png";
+          const imgURL = window.currentHeroURL || HERO_URL;
           row.innerHTML = `
             <div class="h-16 w-16 rounded-lg bg-neutral-100" style="background-image:url('${imgURL}');background-size:cover;background-position:center" aria-label="Product image"></div>
             <div class="flex-1">
@@ -480,8 +476,8 @@
         let discount = 0;
         if (discountCode === DISCOUNT_CODE && subtotal > DISCOUNT_THRESHOLD) discount = subtotal * DISCOUNT_RATE;
         const taxableAmount = subtotal - discount;
-        const cannabisTax = taxableAmount * CANNABIS_TAX_RATE;
-        const stateTax = taxableAmount * STATE_SALES_TAX_RATE;
+        const cannabisTax = taxableAmount * 0.15;
+        const stateTax = taxableAmount * 0.06875;
         const total = taxableAmount + cannabisTax + stateTax;
         $('#subtotal').textContent = fmt(subtotal);
         $('#discount').textContent = fmt(discount);
@@ -516,15 +512,15 @@
         const subtotal = cart.reduce((s, i) => s + PRODUCT.price * i.qty, 0);
         let discount = (discountCode === DISCOUNT_CODE && subtotal > DISCOUNT_THRESHOLD) ? subtotal * DISCOUNT_RATE : 0;
         const taxableAmount = subtotal - discount;
-        const cannabisTax = taxableAmount * CANNABIS_TAX_RATE;
-        const stateTax = taxableAmount * STATE_SALES_TAX_RATE;
+        const cannabisTax = taxableAmount * 0.15;
+        const stateTax = taxableAmount * 0.06875;
         const total = taxableAmount + cannabisTax + stateTax;
         const orderId = "PK-" + Math.random().toString(36).slice(2, 8).toUpperCase();
         const flavor = $('#flavor').value;
         const note = `Order ${orderId} — ${PRODUCT.name} (${flavor}) x ${cart[0].qty} @ ${fmt(PRODUCT.price)} — Subtotal ${fmt(subtotal)} — Discount ${fmt(discount)} — Cannabis Tax (15%) ${fmt(cannabisTax)} — State Sales Tax (6.875%) ${fmt(stateTax)} — Total ${fmt(total)} — Ship: MN`;
         try { navigator.clipboard?.writeText(note); } catch {}
         alert(`Copy this into your Cash App note before paying:\n\n${note}`);
-        window.open(CASH_APP_URL, "_blank");
+        window.open("https://cash.app/$CurtisGieseke", "_blank");
       });
 
       // Pay with Cash App quick button
@@ -534,9 +530,9 @@
         document.getElementById('checkout').click();
       });
 
-      // COA modal
+      // COA modal (renamed to #coa-modal)
       async function toggleCOA(show = true) {
-        const c = document.querySelector('#coa');
+        const c = document.querySelector('#coa-modal');
         c.style.display = show ? 'flex' : 'none';
         if (show) {
           try {
@@ -569,10 +565,9 @@
       const ageData = JSON.parse(localStorage.getItem('hemp_age_verified') || '{}');
       if (!ageData.verified || (Date.now() - ageData.timestamp > 30*24*60*60*1000)) showAgeGate();
 
-      // HERO IMAGE
+      // HERO IMAGE — force your file (no rename)
       (async function setHeroImage() {
         const hero = document.querySelector('#hero-img');
-        const imageUrl = "/assets/gurmies-hero.png";  // matches your repo spelling
         function setBG(url){
           hero.style.backgroundImage = `url('${url}')`;
           hero.style.backgroundSize = 'cover';
@@ -583,9 +578,9 @@
           const i = new Image();
           i.onload = () => res(true);
           i.onerror = () => res(false);
-          i.src = imageUrl;
+          i.src = HERO_URL;
         });
-        if (ok) setBG(imageUrl);
+        if (ok) setBG(HERO_URL);
         else { setBG(PRODUCT.imageFallback); hero.innerHTML = '<p class="text-sm text-neutral-600 text-center mt-4">Image unavailable</p>'; }
       })();
 
@@ -595,6 +590,7 @@
           const qs = new URLSearchParams(location.search);
           const buy = qs.get("buy");
           if (!buy || buy !== PRODUCT.id) return;
+
           const qty = Math.max(1, parseInt(qs.get("qty") || "1", 10));
           const desiredState = qs.get("state");
           const open = qs.get("open");
@@ -605,10 +601,10 @@
             sel.value = desiredState; sel.dispatchEvent(new Event("change"));
           }
 
-          const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-          const existing = cart.find(i => i.id === PRODUCT.id);
-          if (existing) existing.qty += qty; else cart.push({ id: PRODUCT.id, qty });
-          localStorage.setItem('cart', JSON.stringify(cart));
+          const c = JSON.parse(localStorage.getItem('cart') || '[]');
+          const existing = c.find(i => i.id === PRODUCT.id);
+          if (existing) existing.qty += qty; else c.push({ id: PRODUCT.id, qty });
+          localStorage.setItem('cart', JSON.stringify(c));
           renderCart();
 
           if (open === "cart") document.querySelector('a[href="#cart"]').click();
